@@ -1,10 +1,3 @@
-//
-//  UnitModel.swift
-//  GonchikAdventure
-//
-//  Created by Миляев Максим on 19.03.2025.
-//
-
 import GameplayKit
 
 class UnitModel {
@@ -36,9 +29,9 @@ class UnitModel {
     
     //physicBodies
 //    let leftDirectionPhysicBody = SKPhysicsBody(rectangleOf: CGSize(width: 30, height: 40), center: CGPoint(x: -10, y: 0))
-    let leftDirectionPhysicBody = SKPhysicsBody(circleOfRadius: 18, center: CGPoint(x: -10, y: 0))
+//    let leftDirectionPhysicBody = SKPhysicsBody(circleOfRadius: 18, center: CGPoint(x: -10, y: 0))
 //    let rightDirectionPhysicBody = SKPhysicsBody(rectangleOf: CGSize(width: 30, height: 40), center: CGPoint(x: 10, y: 0))
-    let rightDirectionPhysicBody = SKPhysicsBody(circleOfRadius: 18, center: CGPoint(x: 10, y: 0))
+//    let rightDirectionPhysicBody = SKPhysicsBody(circleOfRadius: 18, center: CGPoint(x: 10, y: 0))
     
     func setupStateMachine(){
         let idleState = UnitIdlelState(unit: self)
@@ -66,7 +59,7 @@ class UnitModel {
 //        entity.addComponent(directionComponent)
         entity.addComponent(movementComponent)
         setupStateMachine()
-        setupPhysicsTo(withBody:leftDirectionPhysicBody)
+//        setupPhysicsTo(withBody:leftDirectionPhysicBody)
         return entity
     }
     

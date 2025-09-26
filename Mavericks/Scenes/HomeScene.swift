@@ -12,7 +12,7 @@ import SwiftUI
 import SpriteKit
 
 class HomeScene: SKScene{
-    
+    var selectedSprite: SKSpriteNode?
     weak var mainViewDelegate: MainViewDelegateProtocol?
 
     override func didMove(to view: SKView) {
@@ -21,8 +21,15 @@ class HomeScene: SKScene{
         scaleMode = .aspectFill
 
         setupCamera()
-        addTestNode()
+//        addTestNode()
         backgroundColor = NSColor.orange
+        
+//        let atlas = SKTextureAtlas(named: "Images")
+//        let texture = atlas.textureNamed("15296601")
+//        let sptite = SKSpriteNode(texture: texture)
+//        sptite.scale(to: CGSize(width: 200, height: 200))
+//        sptite.position = CGPoint(x: frame.midX - 100, y: frame.midY - 100)
+//        addChild(sptite)
         
     }
     
@@ -39,6 +46,9 @@ class HomeScene: SKScene{
         let sprite = SKSpriteNode(color: NSColor.red, size: CGSize(width: 100, height: 100))
         sprite.position = CGPoint(x: frame.midX, y: frame.midY)
         sprite.name = "testSprite"
+
+       
+        
         addChild(sprite)
     }
 }
@@ -94,6 +104,7 @@ extension HomeScene: RootScene{
 //        print("location: \(location)... scene location: \(sceneLocation)")
         if let sprite = childNode(withName: "testSprite") as? SKSpriteNode, sprite.contains(sceneLocation) {
             sprite.color = NSColor.blue
+            selectedSprite = sprite
         }
     }
     
@@ -106,6 +117,7 @@ extension HomeScene: RootScene{
             sprite.color = NSColor.red
             sprite.alpha = 1
         }
+        selectedSprite = nil
     }
     
     // Обработка движения курсора (для касаний с перемещением)
@@ -113,6 +125,9 @@ extension HomeScene: RootScene{
         print("mouse moved")
         let location = event.locationInWindow
         let sceneLocation = convertPoint(fromView: location)
+        if let selectedSprite {
+            selectedSprite.position = sceneLocation
+        }
     }
     
     // Поддержка Force Touch (если трекпад поддерживает)

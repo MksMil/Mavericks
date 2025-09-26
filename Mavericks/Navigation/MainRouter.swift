@@ -19,29 +19,21 @@ final class MainRouter: ObservableObject, MainViewDelegateProtocol{
     
     // MARK: - Init
     init() {
-        self.activeScene = loadScene(name: "TestScene")
+        self.activeScene = loadScene(name: .home)
     }
     
 //initial load
-    func loadScene(name: String) -> RootScene{
+    func loadScene(name: ScenePath) -> RootScene{
         
-//        if let scene = GKScene(fileNamed: "TestScene"){
-//            if let sceneNode = scene.rootNode as? LevelScene {
-//                sceneNode.entities = scene.entities
-//                sceneNode.graphs = scene.graphs
-//                sceneNode.mainViewDelegate = self
-//                return sceneNode
-//            }else{
-//                //debug
-//                return HomeScene() //error scene mb?
-//            }
-//        }
-//        else{
-//            //debug
-//            print("gkscn not loaded")
-//            return HomeScene() //error scene mb?
-//        }
-        return HomeScene()
+        switch name {
+            case .home:
+                  return HomeScene()
+            case .raidScene:
+                  return RaidScene()
+              default:
+                  print("Scene \(name) not found")
+                  return HomeScene()
+              }
         
     }
 }
@@ -50,7 +42,7 @@ final class MainRouter: ObservableObject, MainViewDelegateProtocol{
 extension MainRouter{
     func presentScene(_ scene: ScenePath) {
 
-       let newScene = loadScene(name: scene.rawValue)
+       let newScene = loadScene(name: scene)
         newScene.mainViewDelegate = self
         controlInputDelegate = newScene
         renderDelegate?.loadScene(scene: newScene)

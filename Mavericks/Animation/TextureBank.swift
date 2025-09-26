@@ -1,20 +1,6 @@
 import SpriteKit
 
-enum TextureBank: String {
-    
-    case hero
-    
-//    func textureForState(hState: UnitState, vState: UnitVState){
-//        switch vState {
-//            case .jump:
-//                return
-//            case .fall:
-//                <#code#>
-//            case .onGround:
-//                <#code#>
-//        }
-//    }
-    
+enum TextureBank {
     static let hero_idleTextures: [SKTexture] = {
         var array = [SKTexture]()
         (0...11).forEach { num in
@@ -22,7 +8,7 @@ enum TextureBank: String {
         }
         return array
     }()
- 
+    
     static let hero_moveLeftTextures: [SKTexture] = {
         var array = [SKTexture]()
         (0...11).forEach { num in
@@ -54,4 +40,11 @@ enum TextureBank: String {
         }
         return array
     }()
+    static let textures: [SKTexture] = {
+       let txt = SKTexture(imageNamed: "cat")
+        
+        return []
+    }()
+    
+    
 }

@@ -36,10 +36,10 @@ class VisualComponent: GKComponent {
                               height: node.size.height))
         node.position = CGPoint(x: node.position.x + (unit.direction == .left ? node.size.width / 4: -node.size.width / 4),
                                 y: node.position.y)
-        if let velocity = unit.node.physicsBody?.velocity{
-            unit.setupPhysicsTo(withBody: unit.direction == .left ? unit.leftDirectionPhysicBody: unit.rightDirectionPhysicBody)
-            unit.node.physicsBody?.velocity = velocity
-        }
+//        if let velocity = unit.node.physicsBody?.velocity{
+//            unit.setupPhysicsTo(withBody: unit.direction == .left ? unit.leftDirectionPhysicBody: unit.rightDirectionPhysicBody)
+//            unit.node.physicsBody?.velocity = velocity
+//        }
     }
     
     override func update(deltaTime seconds: TimeInterval) {

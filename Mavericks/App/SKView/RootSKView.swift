@@ -1,23 +1,6 @@
 import SpriteKit
 import SwiftUI
 
-//struct RootView: NSViewRepresentable{
-//    
-//    let router: MainRouter
-//    
-//    func makeNSView(context: Context) -> SKView {
-//        let view = RootSKView()
-//        view.router = router
-//        
-//        return view
-//    }
-//    func updateNSView(_ nsView: NSViewType, context: Context) {
-//        
-//    }
-//    
-//}
-
-
 class RootSKView: SKView {
     
     weak var router: MainRouter?
@@ -50,6 +33,9 @@ class RootSKView: SKView {
     
     override func mouseUp(with event: NSEvent) {
         router?.controlInputDelegate?.handleMouseUp(with: event)
+    }
+    override func mouseDragged(with event: NSEvent) {
+        router?.controlInputDelegate?.handleMouseMoved(with: event)
     }
     
     override func keyUp(with event: NSEvent) {
