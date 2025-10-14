@@ -14,6 +14,7 @@ class RootSKView: SKView {
     }
     
     func loadScene(scene: RootScene){
+        //TODO: options
         presentScene(scene, transition: .crossFade(withDuration: 1))
     }
     
@@ -29,6 +30,7 @@ class RootSKView: SKView {
     }
     override func mouseDown(with event: NSEvent) {
         router?.controlInputDelegate?.handleMouseDown(with: event)
+        
     }
     
     override func mouseUp(with event: NSEvent) {

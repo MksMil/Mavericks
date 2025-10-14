@@ -1,5 +1,5 @@
 import SwiftUI
-
+//bridge
 struct RootView: NSViewRepresentable{
 
     let router: MainRouter
