@@ -247,7 +247,7 @@ extension RaidScene: ControlInputDelegate {
 //            placeObject(at: location, isTurret: isTurret)
         
         do{
-            let cell = try field.filedPieceInLocation(location)
+            let cell = try field.fieldPieceInLocation(location)
             handleEventForCell(cell)
         } catch {
             print(error.localizedDescription)

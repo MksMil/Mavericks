@@ -199,7 +199,7 @@ extension Field {
 
 // MARK: - checks
 extension Field {
-    func filedPieceInLocation(_ location: CGPoint) throws -> GridCell {
+    func fieldPieceInLocation(_ location: CGPoint) throws -> GridCell {
         let gridPos = convertToGridPosition(cgPoint: location,
                                             pathGraph: pathGraph )
         print("tapped at pos: \(gridPos)")
@@ -250,7 +250,7 @@ extension Field{
             scene?.run(SKAction.repeatForever(
                 SKAction.sequence(
                     [SKAction.run {spawn.startSpawnMonsters()},
-                     SKAction.wait(forDuration: 90)]
+                     SKAction.wait(forDuration: 10)]
                 )
             )
             )

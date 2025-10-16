@@ -5,23 +5,49 @@ enum TargetPredicate {
     case first, high, low, none
 }
 
+enum DamageType: String{
+    case physic, fire, chemical
+}
+
 class TowerModel: GKEntity{
     
     let id: String
-    var node: BaseTowerNode?
-    var type: TowerType
+    weak var node: BaseTowerNode?
+    
     let field: Field
     let cell: GridCell
+    
+    var type: TowerType
+    
+    var dmgType: DamageType{
+        switch type {
+            case .arrow:
+                    .physic
+            case .poison:
+                    .chemical
+            case .freeze:
+                    .chemical
+            case .electric:
+                    .fire
+            case .fire:
+                    .fire
+            case .stun:
+                    .physic
+        }
+    }
+    
     var stateMacine: GKStateMachine?
     
-    var attack: Int = 1
     var cost: Int = 1
+
+    var attack: DamageModel
     var fireRate: CGFloat = 1
     var fireRadius: CGFloat = 4
     
-    var targetCells: [GridCell] = []
-    
+    var effectDuration: CGFloat = 1
     var level: Int = 1
+    
+    var targetCells: [GridCell] = []
     var targets: [MonsterModel] = []
     var targetPredicate: TargetPredicate = .first
     
@@ -31,6 +57,9 @@ class TowerModel: GKEntity{
         self.type = type
         self.field = field
         self.cell = cell
+        self.attack = DamageModel(physic: 20,
+                                  fire: 0,
+                                  chemic: 0)
         super.init()
         self.detectTargetCells()
         
@@ -60,12 +89,11 @@ class TowerModel: GKEntity{
             row.forEach { targetCell in
                 if CGFloat(abs(cell.gridPosition.x - targetCell.gridPosition.x) + abs(cell.gridPosition.y - targetCell.gridPosition.y)) <= fireRadius{
                     self.targetCells.append(targetCell)
-//                    print("added \(targetCell.gridPosition)")
                 }
             }
         }
         testShooting()
-//        print(targetCells.count)
+        print(targetCells.count)
     }
     func testShooting(){
         updateTargets()
@@ -83,6 +111,7 @@ extension TowerModel {
         targetCells.forEach { cell in
             targets += cell.monsters
         }
+//        print("updated targets: \(targets.count)")
         targets.sort { m1, m2 in
             m1.health < m2.health
         }
@@ -98,7 +127,10 @@ extension TowerModel {
     
     
     func shootOnTarget(){
-        if !targets.isEmpty, let target = targets.first, let node, let targetPosition = target.node?.position{
+        if !targets.isEmpty,
+           let target = targets.first,
+           let node,
+           let targetPosition = target.node?.position{
             let bullet = SKSpriteNode(color: NSColor.red, size: CGSize(width: 10,
                                                                        height: 10))
             if let scene = node.parent {
@@ -108,6 +140,7 @@ extension TowerModel {
             bullet.position = node.position
             bullet.run(SKAction.move(to: targetPosition, duration: 1)){
                 bullet.removeFromParent()
+                target.takeDamage(self.attack,from: self)
             }
         }
     }

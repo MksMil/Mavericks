@@ -52,7 +52,8 @@ class SpawnModel: GKEntity {
     func startSpawnMonsters(){
         let monster = MonsterModel(bank: field.textureBank,
                                    spawn: self,
-                                   path: pathComponent?.actualPath ?? [])
+                                   path: pathComponent?.actualPath ?? [], armor: ArmorModel(physic: 10,
+                                                     fire: 10,                  chemic: 10))
         monsters.append(monster)
         field.addMonster(monster)
     }
