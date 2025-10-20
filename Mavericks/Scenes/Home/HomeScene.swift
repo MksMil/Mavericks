@@ -31,7 +31,7 @@ class HomeScene: SKScene{
 extension HomeScene {
     func setupCamera(){
         let cameraNode = SKCameraNode()
-        cameraNode.name = NodeNames.camera.name
+        cameraNode.name = NodeNames.camera.rawValue
         addChild(cameraNode)
         camera = cameraNode
         cameraNode.position = CGPoint(x: size.width / 2,

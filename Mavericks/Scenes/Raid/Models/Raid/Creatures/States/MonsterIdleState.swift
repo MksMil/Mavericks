@@ -10,7 +10,7 @@ class MonsterIdleState: GKState{
         self.monster = monster
     }
     override func didEnter(from previousState: GKState?) {
-        print("enter to idle state")
+//        print("enter to idle state")
     }
     
     override func willExit(to nextState: GKState) {

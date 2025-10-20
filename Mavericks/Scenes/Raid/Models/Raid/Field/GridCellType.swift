@@ -7,6 +7,6 @@ enum GridCellType: String {
     case resource = "resource"
     case decor = "decor"
     case block = "block"
-    case lair = "lair"
+    case spawn = "spawn"
     case tower = "tower"
 }

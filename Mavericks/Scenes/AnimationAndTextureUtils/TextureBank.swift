@@ -6,49 +6,142 @@ enum TextureKeys: String {
     case field
     case tower
     case base
-    case lair
+    case spawn
     case resource
+    case hudButton
+    case hudMenuTowerCase
+    case hudMenuBlockCase
+    case hudMenuUpdSellCase
 }
 
-class TextureBank {
-    let name: String
-    let size: CGFloat
-    
-    var atlas: SKTexture
-    
+class TextureBank: RaidDataSource{
+    let levelInfo: String
+    let cellSize: CGFloat
+        
     var moveRightTextures:[SKTexture] = []
     var moveUpTextures:[SKTexture] = []
     var moveDownTextures:[SKTexture] = []
     
-    var all: [TextureKeys: [SKTexture]] = [:]
+    var towerTextures: [SKTexture] = []
     
+    var hudTextures: [SKTexture] = []
+    var towerMenuTextures: [SKTexture] = []
+    var upgradeSellTextures: [SKTexture] = []
+    var pauseMenuTextures: [SKTexture] = []
+    
+    var fieldTextures: [SKTexture] = []
+    
+    var progress: Int = 0
     var normalMap: [SKTexture] = []
     
-    init(name: String, size: CGFloat){
-        self.name = name
-        self.size = size
-        self.atlas = SKTexture(imageNamed: name)
+    init(levelInfo: String, cellSize: CGFloat){
+        self.levelInfo = levelInfo
+        self.cellSize = cellSize
         config()
+        Task{
+           await load()
+        }
+    }
+    
+    func load() async {
+        await SKTexture.preload(moveUpTextures)
+        //change progress state
+        await SKTexture.preload(moveDownTextures)
+        //change progress state
+        await SKTexture.preload(moveRightTextures)
+        //change progress state
+        await SKTexture.preload(hudTextures)
+        //change progress state
+        await SKTexture.preload(towerTextures)
+        //change progress state
+        await SKTexture.preload(upgradeSellTextures)
+        //change progress state
+        await SKTexture.preload(fieldTextures)
+        //change progress state
+        await SKTexture.preload(pauseMenuTextures)
+        //change progress state
+
     }
     
     func config(){
-//        moveUpTextures = makeTexturesForHeight(6, count: 4)
-//        moveDownTextures = makeTexturesForHeight(8, count: 4)
-//        moveRightTextures = makeTexturesForHeight(7, count: 4)
+        makeFieldTexture()
         makeMonsterTexture()
         makeTowerTextures()
+        makeHudMenuUpgradeSellButtonsTextures()
+        makeHudMenuTowersButtonsTextures()
+        makePauseMenuTextures()
     }
     
+}
+// MARK: - HUD
+extension TextureBank {
+    // MARK: PauseMenu
+    func makePauseMenuTextures(){
+        let pauseMenuAtlas = SKTexture(imageNamed: "pauseMenu")
+        for i in 0..<4 {
+            let rect = CGRect(
+                x: CGFloat(i) * pauseMenuAtlas.textureRect().width / 4 ,
+                y: 0,
+                width: pauseMenuAtlas.textureRect().width / 4,
+                height:pauseMenuAtlas.textureRect().height)
+            let texture = SKTexture(rect: rect, in: pauseMenuAtlas)
+            pauseMenuTextures.append(texture)
+        }
+    }
+    // MARK: Sell/Upgrade
+    func makeHudMenuUpgradeSellButtonsTextures(){
+        let upgradeAtlas = SKTexture(imageNamed: "sellUpgrade")
+        for i in 0..<2 {
+            let rect = CGRect(
+                x: CGFloat(i) * upgradeAtlas.textureRect().width / 2 ,
+                y: 0,
+                width: upgradeAtlas.textureRect().width / 2,
+                height: upgradeAtlas.textureRect().height)
+            let texture = SKTexture(rect: rect, in: upgradeAtlas)
+            upgradeSellTextures.append(texture)
+        }
+    }
+    // MARK: Towers choise buttons
+    func makeHudMenuTowersButtonsTextures(){
+        let towerAtlas = SKTexture(imageNamed: "towers")
+        for i in 0..<6 {
+            let rect = CGRect(
+                x: CGFloat(i) * towerAtlas.textureRect().width / 6 ,
+                y: 0,
+                width: towerAtlas.textureRect().width / 6,
+                height: towerAtlas.textureRect().height)
+            let texture = SKTexture(rect: rect, in: towerAtlas)
+            towerMenuTextures.append(texture)
+        }
+        print("textures loaded \(towerMenuTextures.count), \(upgradeSellTextures.count)")
+    }
+}
+
+// MARK: - Field
+extension TextureBank{
     func makeFieldTexture(){
+        let atlas = SKTexture(imageNamed: "field")
+        for i in 0..<2 {
+            let rect = CGRect(
+                x: CGFloat(i) * atlas.textureRect().width / 2 ,
+                y: 0,
+                width: atlas.textureRect().width / 2,
+                height: atlas.textureRect().height)
+            let texture = SKTexture(rect: rect, in: atlas)
+            fieldTextures.append(texture)
+        }
+        
         
     }
     func makeRoadTexture(){
         
     }
-    
+}
+
+// MARK: - Towers
+extension TextureBank{
     func makeTowerTextures(){
         let atlass = SKTexture(imageNamed: "tower_prototype")
-        all[.tower] = []
         for i in 0..<4 {
             let rect = CGRect(
                 x: CGFloat(i) * atlass.textureRect().width / 4 ,
@@ -56,23 +149,12 @@ class TextureBank {
                 width: atlass.textureRect().width / 4,
                 height: atlass.textureRect().height)
             let texture = SKTexture(rect: rect, in: atlass)
-            all[.tower]?.append(texture)
+            towerTextures.append(texture)
         }
     }
-    
-    func makeTexturesForHeight(_ h: Int, count: Int, name: String = "") -> [SKTexture]{
-        atlas = SKTexture(imageNamed: name)
-        var result: [SKTexture] = []
-        for i in 0..<count {
-            let rect = CGRect(x: CGFloat(i) * atlas.textureRect().width / 4 ,
-                              y: CGFloat(h) * atlas.textureRect().height / 12,
-                              width: atlas.textureRect().width / 4,
-                              height: atlas.textureRect().height / 12)
-            let texture = SKTexture(rect: rect, in: atlas)
-            result.append(texture)
-        }
-        return result
-    }
+}
+// MARK: - Monsters
+extension TextureBank{
     func makeMonsterTexture(){
         let atlas = SKTextureAtlas(named: "Monster")
                 
@@ -98,5 +180,25 @@ class TextureBank {
         moveRightTextures = cmbTextures
         
 //        normalMap = TextureFactory.generarateNormalMapsFrom(textures: cmbTextures)
+    }
+}
+
+// MARK: - Helper
+extension TextureBank{
+    func makeTexturesForHeight(_ h: Int,
+                               countX: Int,
+                               countY: Int,
+                               name: String = "") -> [SKTexture]{
+        let atlas = SKTexture(imageNamed: name)
+        var result: [SKTexture] = []
+        for i in 0..<countX {
+            let rect = CGRect(x: CGFloat(i) * atlas.textureRect().width / CGFloat(countX) ,
+                              y: CGFloat(h) * atlas.textureRect().height / CGFloat(countY),
+                              width: atlas.textureRect().width / CGFloat(countX),
+                              height: atlas.textureRect().height / CGFloat(countY))
+            let texture = SKTexture(rect: rect, in: atlas)
+            result.append(texture)
+        }
+        return result
     }
 }

@@ -9,7 +9,7 @@ class MonsterVisualComponent: GKComponent {
     
     var unit: MonsterModel?
     var lastDirection: UnitDirection = .south
-    var bank: TextureBank?
+    var bank: RaidDataSource?
     
     var hScale = 1.0
     

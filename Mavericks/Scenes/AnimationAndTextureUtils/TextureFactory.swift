@@ -10,6 +10,9 @@ enum TextureFactory{
     struct AnglesForState {
         //static values for different class texture
     }
+    
+    
+    
     //custom sequence for test texture
     static func makeSequence(headTexture: SKTexture, bodyTexture: SKTexture,
                              leftArmTexture: SKTexture, rightArmTexture: SKTexture,

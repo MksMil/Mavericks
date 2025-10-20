@@ -6,6 +6,9 @@ enum NodeNames: String{
     case labelScores, labelLives
     case mainHero
     case empty
+    case arrow, poison, fire,frost, electro, stun
+    case resume, restart, options, exit
+    case pause
     
     case camera = "cameraNode"
     case base = "base"
@@ -15,8 +18,4 @@ enum NodeNames: String{
     case monster = "monster"
     case block = "block"
     
-    
-    var name: String {
-        self.rawValue
-    }
 }

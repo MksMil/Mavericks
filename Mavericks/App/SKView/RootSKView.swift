@@ -1,6 +1,8 @@
 import SpriteKit
 import SwiftUI
 
+// TODO: #ifOS iOS macOS
+
 class RootSKView: SKView {
     
     weak var router: MainRouter?
@@ -15,7 +17,9 @@ class RootSKView: SKView {
     
     func loadScene(scene: RootScene){
         //TODO: options
-        presentScene(scene, transition: .crossFade(withDuration: 1))
+        if let scene = scene as? SKScene {
+            presentScene(scene, transition: .crossFade(withDuration: 1))   
+        }
     }
     
     
@@ -32,7 +36,6 @@ class RootSKView: SKView {
         router?.controlInputDelegate?.handleMouseDown(with: event)
         
     }
-    
     override func mouseUp(with event: NSEvent) {
         router?.controlInputDelegate?.handleMouseUp(with: event)
     }

@@ -34,7 +34,7 @@ class MonsterModel: GKEntity {
     let id: String
     weak var spawn: SpawnModel?
     
-    var bank: TextureBank //texture atlas name
+    var bank: RaidDataSource //texture atlas name
     
     var health: Int
     //regeneration?
@@ -60,9 +60,10 @@ class MonsterModel: GKEntity {
     var isIgnite: Bool = false
     var isStunned: Bool = false
 
+    var updatePath: Bool = false
     // MARK: init
     init(id: String = UUID().uuidString,
-         bank: TextureBank,
+         bank: RaidDataSource,
          spawn: SpawnModel,
          path: [GKGridGraphNode],
          health: Int = 100,
@@ -114,6 +115,7 @@ class MonsterModel: GKEntity {
             let position = node.position
             node.removeAction(forKey: ActionNames.monsterMoveCompletion.rawValue)
             gridPath = pathFor(position)
+            updatePath = true
             stateMachine?.enter(MonsterMoveState.self)
         }
     }
@@ -157,4 +159,7 @@ extension MonsterModel{
     }
 }
 
-
+// MARK: - Informable
+extension MonsterModel: Informable{
+    
+}

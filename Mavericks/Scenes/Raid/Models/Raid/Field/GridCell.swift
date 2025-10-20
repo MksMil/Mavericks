@@ -39,13 +39,17 @@ class GridCell: GKEntity {
 
 // MARK: - monster towers
 extension GridCell {
+    func clearMonsters(){
+        monsters.removeAll()
+    }
+    
     func updateWithMonster(_ monster: MonsterModel,
                            enterIn: Bool){
         if enterIn {
             monsters.append(monster)
             state = .enemiesIn
         } else {
-            if !monsters.isEmpty{
+            if !monsters.isEmpty, monsters.contains(where: {$0 == monster}){
                 monsters.removeAll { existing in
                     existing == monster
                 }

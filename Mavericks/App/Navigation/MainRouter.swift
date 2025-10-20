@@ -13,12 +13,15 @@ final class MainRouter: ObservableObject, MainViewDelegateProtocol{
     init() {}
     
     func loadScene(name: ScenePath) -> RootScene{
-        
+        //additional info about scene: -size, name, data...
         switch name {
             case .home:
                   return HomeScene()
             case .raidScene:
-                  return RaidScene()
+                return SceneFactory.makeScene(levelInfo: "level1",
+                                              initialSize: CGSize(width: 800,
+                                                                  height: 800),
+                                              cellSize: 18)
             case .testScene:
                 return TestScene()
               default:

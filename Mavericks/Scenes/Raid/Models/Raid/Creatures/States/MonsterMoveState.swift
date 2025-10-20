@@ -51,7 +51,6 @@ class MonsterMoveState: GKState{
                 old.updateWithMonster(monster, enterIn: false)
             }
             //new state for monster
-            print("in first check")
             self.monster.stateMachine?.enter(MonsterIdleState.self)
             return
         }
@@ -134,9 +133,13 @@ class MonsterMoveState: GKState{
             let moveAction = SKAction.sequence([actionY,actionX])
             let waitAction = SKAction.wait(forDuration: xDuration + yDuration)
             let complAction = SKAction.run {
+                guard self.monster.updatePath == false else {
+                    self.monster.updatePath = false
+                    self.monster.stateMachine?.enter(MonsterMoveState.self)
+                    return
+                }
                 guard self.monster.gridPath.count > 0 else {
                     //change state
-                    print("in move to closest")
                     self.monster.stateMachine?.enter(MonsterIdleState.self)
                     return
                 }

@@ -36,4 +36,19 @@ enum SceneHelper {
     //        return scenePath
     //    }
     
+    // Конвертация позиции сцены в координаты сетки
+//    private func sceneToGridPosition(_ point: CGPoint) -> vector_int2 {
+//        let x = Int32(floor(point.x / cellSize))
+//        let y = Int32(floor(point.y / cellSize))
+//        print(" tapped x: \(x), y: \(y)")
+//        return vector_int2(x: x, y: y)
+//    }
+//    //vector_int2 -> CGPoint
+//    private func gridPositionToScene(x: Int, y: Int) -> CGPoint {
+//        let sceneX = CGFloat(x) * cellSize + cellSize / 2
+//        let sceneY = CGFloat(y) * cellSize + cellSize / 2
+//        return CGPoint(x: sceneX, y: sceneY)
+//    }
+
+    
 }

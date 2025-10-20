@@ -125,7 +125,6 @@ extension TowerModel {
 //TODO: shooting animation duration, more precision shoot
 extension TowerModel {
     
-    
     func shootOnTarget(){
         if !targets.isEmpty,
            let target = targets.first,
@@ -144,4 +143,9 @@ extension TowerModel {
             }
         }
     }
+}
+
+// MARK: - Informable
+extension TowerModel: Informable {
+    
 }

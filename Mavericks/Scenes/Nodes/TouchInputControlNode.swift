@@ -39,7 +39,7 @@ class TouchInputControlNode: SKSpriteNode{
                                           height: size.width * buttonSize),
                              position: CGPoint(x: -size.width * 3.7 * scaleFactor,
                                                y: -size.height * 3.5 * scaleFactor))
-        leftButtonNode.name = NodeNames.buttonLeft.name
+        leftButtonNode.name = NodeNames.buttonLeft.rawValue
         leftButtonNode.changeState()
         
         
@@ -50,7 +50,7 @@ class TouchInputControlNode: SKSpriteNode{
                                            height: size.width * buttonSize),
                               position: CGPoint(x: -size.width * 2.7 * scaleFactor,
                                                 y: -size.height * 3.5 * scaleFactor))
-        rightButtonNode.name = NodeNames.buttonRight.name
+        rightButtonNode.name = NodeNames.buttonRight.rawValue
         rightButtonNode.changeState()
         
         //a button
@@ -60,7 +60,7 @@ class TouchInputControlNode: SKSpriteNode{
                                        height: size.width * buttonSize),
                           position: CGPoint(x: size.width * 2.7 * scaleFactor,
                                             y: -size.height * 3.5 * scaleFactor))
-        aButtonNode.name = NodeNames.buttonA.name
+        aButtonNode.name = NodeNames.buttonA.rawValue
         aButtonNode.changeState()
         
         //b button
@@ -71,7 +71,7 @@ class TouchInputControlNode: SKSpriteNode{
                                        height: size.width * buttonSize),
                           position: CGPoint(x: size.width * 3.7 * scaleFactor,
                                             y: -size.height * 3.25 * scaleFactor))
-        bButtonNode.name = NodeNames.buttonB.name
+        bButtonNode.name = NodeNames.buttonB.rawValue
         bButtonNode.changeState()
 
         addChild(leftButtonNode)

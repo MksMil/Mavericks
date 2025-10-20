@@ -2,7 +2,11 @@ import SpriteKit
 import GameplayKit
 
 class Field: GKEntity {
-    weak var scene: RaidScene?
+    let scene: RaidScene
+    //texture bank
+    let textureBank: RaidDataSource?
+    
+    let fieldNode: SKNode = SKNode()
     
     var pathGraph: GKGridGraph<GKGridGraphNode> = GKGridGraph()
     
@@ -14,16 +18,44 @@ class Field: GKEntity {
     var monsters: [MonsterModel] = []
     var towers: [TowerModel] = []
     
-    let cellSize: CGFloat = 100.0
+    var stateMachine: GKStateMachine?
     
-    private let gridWidth = 30
-    private let gridHeight = 30
+    let cellSize: CGFloat
     
-    //texture bank
-    let textureBank = TextureBank(name: "prototype_monster", size: 18)
+    private let gridWidth: Int
+    private let gridHeight: Int
+    
+    init(scene: RaidScene,
+         bank: RaidDataSource?,
+         cellSize: CGFloat = 100,
+         gridWidth: Int = 30,
+         gridHeight: Int = 30) {
+        self.scene = scene
+        self.cellSize = cellSize
+        self.gridWidth = gridWidth
+        self.gridHeight = gridHeight
+        self.textureBank = bank
+        super.init()
+        setupStateMachine()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setupStateMachine(){
+        //state machine setup
+        let pausedState = PausedFieldState(field: self)
+        let rundState = RunFieldState(field: self)
+        let initialState = InitialFieldState(field: self)
+        self.stateMachine = GKStateMachine(states: [initialState,rundState,pausedState])
+        self.stateMachine?.enter(InitialFieldState.self)
+    }
     
     func generateField() {
         setupGrid()
+        //with animation add fieldNode
+        scene.addChild(fieldNode)
     }
     
     func addNewZone(){
@@ -32,6 +64,20 @@ class Field: GKEntity {
     
     
 }
+// MARK: - Pause
+extension Field {
+    func pause(){
+        stateMachine?.enter(PausedFieldState.self)
+    }
+    func run(){
+        stateMachine?.enter(RunFieldState.self)
+    }
+    func start(){
+        stateMachine?.enter(RunFieldState.self)
+        startSpawn()
+    }
+}
+
 // MARK: - Componenets
 extension  Field {
     //MARK: Find Path Component
@@ -51,6 +97,10 @@ extension  Field {
 // MARK: - Graph
 extension Field {
     private func setupGrid() {
+        guard let textureBank else {
+            print("error - texture bank is not exists")
+            return
+        }
         // graph init
         pathGraph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(gridWidth),
@@ -120,7 +170,7 @@ extension Field {
 
 //        let resourseCell = grid[2][28]
         // spawn 1: (28, 15)
-        grid[15][28].type = .lair
+        grid[15][28].type = .spawn
 
         let spawnCell = grid[15][28]
         
@@ -133,7 +183,7 @@ extension Field {
         monsterSpawns.append(spawnModel1)
         
         // spawn 2: (28, 25)
-        grid[25][28].type = .lair
+        grid[25][28].type = .spawn
         let lair2 = grid[25][28]
         
         
@@ -154,13 +204,20 @@ extension Field {
         for y in 0..<gridHeight {
             for x in 0..<gridWidth {
                 let cell = grid[y][x]
-                let sprite = SKSpriteNode(
-                    color: colorForCellType(cell.type),
-                    size: CGSize(width: cellSize,
-                                 height: cellSize))
+                var sprite:SKSpriteNode
+                if cell.type == .field{
+                    sprite = SKSpriteNode(texture: textureBank.fieldTextures.randomElement())
+                    sprite.size = CGSize(width: cellSize,
+                                         height: cellSize)
+                } else {
+                    sprite = SKSpriteNode(
+                        color: colorForCellType(cell.type),
+                        size: CGSize(width: cellSize,
+                                     height: cellSize))
+                }
                 sprite.position = gridPositionToScene(x: x, y: y)
                 sprite.name = "\(cell.type.rawValue)_\(x)_\(y)"
-                scene?.addChild(sprite)
+                fieldNode.addChild(sprite)
                 grid[y][x].node = sprite
             }
         }
@@ -173,7 +230,7 @@ extension Field {
                 let node = pathGraph.node(atGridPosition: vector_int2(Int32(x), Int32(y)))
                 // Разрешаем путь к базе и дороге
                 let cell = grid[y][x]
-                if cell.type != .road && cell.type != .base && cell.type != .lair {
+                if cell.type != .road && cell.type != .base && cell.type != .spawn {
                     node?.removeConnections(to: node?.connectedNodes ?? [], bidirectional: true)
                 }
             }
@@ -190,7 +247,7 @@ extension Field {
             case .resource: return .yellow
             case .decor: return .brown
             case .block: return .black
-            case .lair: return .red
+            case .spawn: return .red
             case .tower:
                 return .orange
         }
@@ -221,7 +278,7 @@ extension Field{
         if let node = pathGraph.node(atGridPosition: cell.gridPosition){
             if cell.type != .road &&
                 cell.type != .base &&
-                cell.type != .lair {
+                cell.type != .spawn {
                 cell.neighbors = node.connectedNodes
                 node.removeConnections(to: node.connectedNodes,
                                        bidirectional: true)
@@ -243,11 +300,12 @@ extension Field{
 
 // MARK: - SpawnPoint
 extension Field{
-    func addSpawnPointInCell(_ start: GridCell, to goal: GridCell){}
+    func addSpawnPointInCell(_ start: GridCell,
+                             to goal: GridCell){}
     //for test
     func startSpawn(){
         monsterSpawns.forEach { spawn in
-            scene?.run(SKAction.repeatForever(
+            fieldNode.run(SKAction.repeatForever(
                 SKAction.sequence(
                     [SKAction.run {spawn.startSpawnMonsters()},
                      SKAction.wait(forDuration: 10)]
@@ -261,6 +319,10 @@ extension Field{
 // MARK: - Monsters
 extension Field {
     func addMonster(_ monster: MonsterModel){
+        guard let textureBank else {
+            print("texture bank doesn't exists")
+            return
+        }
         if let start = monster.gridPath.first{
             let monsterNode = BaseMonsterNode(
                 texture: textureBank.moveRightTextures[0],
@@ -268,13 +330,11 @@ extension Field {
                              height: 30),
                 parentUnit: monster)
             //name with id !
-//            monsterNode.normalTexture = monsterTextureBank.normalMap[0]
             monsterNode.name = "monster\(monster.id)"
             monsterNode.position = SceneHelper.gridPositionToScene(position: start.gridPosition)
             monsterNode.zPosition = 2
             monster.node = monsterNode
-//            monsterNode.lightingBitMask = 0b0001
-            scene?.addChild(monsterNode)
+            fieldNode.addChild(monsterNode)
             monster.start()
         } else {
             print("cant add monster in field")
@@ -286,6 +346,10 @@ extension Field {
 // MARK: - Towers
 extension Field {
     func addTowerToCell(_ cell: GridCell){
+        guard let textureBank else {
+            print("texture bank doesn't exists")
+            return
+        }
         guard cell.type == .field else { return }
         cell.type = .tower
         let position = gridPositionToScene(x: Int(cell.gridPosition.x),
@@ -295,8 +359,7 @@ extension Field {
         
         towers.append(model)
         
-        if let texture = textureBank.all[.tower]?.first{
-            print(texture)
+        if let texture = textureBank.towerTextures.first{
             let node = BaseTowerNode(texture: texture,
                                      size: CGSize(width: cellSize,
                                                   height: cellSize),
@@ -304,7 +367,7 @@ extension Field {
             model.node = node
             node.position = position
             cell.node = node
-            scene?.addChild(node)
+            fieldNode.addChild(node)
         } else {
             print("empty txture")
         }

@@ -50,7 +50,11 @@ class SpawnModel: GKEntity {
     // TODO: waves mechanizmus
     
     func startSpawnMonsters(){
-        let monster = MonsterModel(bank: field.textureBank,
+        guard let bank = field.textureBank else {
+            print("cant start spwan - texture bank doesn't exist")
+            return
+        }
+        let monster = MonsterModel(bank: bank,
                                    spawn: self,
                                    path: pathComponent?.actualPath ?? [], armor: ArmorModel(physic: 10,
                                                      fire: 10,                  chemic: 10))
