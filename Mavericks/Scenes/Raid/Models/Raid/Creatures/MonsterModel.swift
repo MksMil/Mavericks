@@ -60,7 +60,6 @@ class MonsterModel: GKEntity {
     var isIgnite: Bool = false
     var isStunned: Bool = false
 
-    var updatePath: Bool = false
     // MARK: init
     init(id: String = UUID().uuidString,
          bank: RaidDataSource,
@@ -113,10 +112,11 @@ class MonsterModel: GKEntity {
     func updateWith(_ pathFor: @escaping (CGPoint)->[GKGridGraphNode] ){
         if let node {
             let position = node.position
-            node.removeAction(forKey: ActionNames.monsterMoveCompletion.rawValue)
             gridPath = pathFor(position)
-            updatePath = true
-            stateMachine?.enter(MonsterMoveState.self)
+            //if monster was blocked
+            if stateMachine?.currentState is MonsterIdleState{
+                stateMachine?.enter(MonsterMoveState.self)
+            }
         }
     }
    

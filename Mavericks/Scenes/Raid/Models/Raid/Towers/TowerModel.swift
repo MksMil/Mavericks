@@ -93,7 +93,7 @@ class TowerModel: GKEntity{
             }
         }
         testShooting()
-        print(targetCells.count)
+//        print(targetCells.count)
     }
     func testShooting(){
         updateTargets()
@@ -128,16 +128,21 @@ extension TowerModel {
     func shootOnTarget(){
         if !targets.isEmpty,
            let target = targets.first,
-           let node,
+           let node = node?.parent, // tower cell's node
            let targetPosition = target.node?.position{
-            let bullet = SKSpriteNode(color: NSColor.red, size: CGSize(width: 10,
-                                                                       height: 10))
+            let bullet = SKSpriteNode(color: NSColor.red,
+                                      size: CGSize(width: 10,
+                                                   height: 10))
+            print("target position: \(targetPosition)")
+            print("tower position: \(node.position)")
             if let scene = node.parent {
                 scene.addChild(bullet)
             }
             
             bullet.position = node.position
-            bullet.run(SKAction.move(to: targetPosition, duration: 1)){
+            bullet.zPosition = 100
+            bullet.run(SKAction.move(to: targetPosition,
+                                     duration: 1)){
                 bullet.removeFromParent()
                 target.takeDamage(self.attack,from: self)
             }

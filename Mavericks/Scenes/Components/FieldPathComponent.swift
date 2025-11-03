@@ -59,7 +59,17 @@ extension FieldPathComponent{
             }
             var newPath = path
             //check nearest
-            if (SceneHelper.distanceToScenePoint(SceneHelper.gridPositionToScene(position: path[0].gridPosition), from: start) + SceneHelper.distanceToScenePoint(SceneHelper.gridPositionToScene(position: path[1].gridPosition), from: SceneHelper.gridPositionToScene(position: path[0].gridPosition))) > SceneHelper.distanceToScenePoint(SceneHelper.gridPositionToScene(position: path[1].gridPosition), from: start) {
+            if (SceneHelper.distanceToScenePoint(
+                SceneHelper.gridPositionToScene(
+                    position: path[0].gridPosition),
+                from: start) + SceneHelper.distanceToScenePoint(
+                    SceneHelper.gridPositionToScene(
+                        position: path[1].gridPosition),
+                    from: SceneHelper.gridPositionToScene(
+                        position: path[0].gridPosition))) > SceneHelper.distanceToScenePoint(
+                            SceneHelper.gridPositionToScene(
+                                position: path[1].gridPosition),
+                            from: start) {
                 newPath.remove(at: 0)
                 return newPath
             }

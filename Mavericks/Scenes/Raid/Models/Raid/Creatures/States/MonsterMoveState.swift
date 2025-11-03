@@ -28,6 +28,7 @@ class MonsterMoveState: GKState{
         let path = monster.gridPath
         
         guard let node = monster.node else {
+            //clear cells
             if let oldPosition = monster.lastPathPosition,
                let old = monster.spawn?.field.cellInGridPosition(oldPosition){
                 old.updateWithMonster(monster, enterIn: false)
@@ -88,11 +89,14 @@ class MonsterMoveState: GKState{
         if endPoint == startPoint{
             // if there is the new path, and unit not in center of the cell path[0] update cell states,
             // and move animation is path[0] -> path[1]
-            // flag for change path array after move complerion
+            // flag for change path array after move completion
             fromCenterCell = true
             endPoint = SceneHelper.gridPositionToScene(position: path[1].gridPosition)
+            //remove to action
+            //v0.1
             let old = monster.spawn?.field.cellInGridPosition(path[0].gridPosition)
             old?.updateWithMonster(monster, enterIn: false)
+            
             let new = monster.spawn?.field.cellInGridPosition(path[1].gridPosition)
             new?.updateWithMonster(monster, enterIn: true)
             
@@ -103,6 +107,7 @@ class MonsterMoveState: GKState{
             // and move animation is curentPosition -> path[0]
             // do not change path array after move completion
             fromCenterCell = false
+            //v0.1
             if let oldPosition = monster.lastPathPosition {
                 let old = monster.spawn?.field.cellInGridPosition(oldPosition)
                 old?.updateWithMonster(monster, enterIn: false)
@@ -116,6 +121,32 @@ class MonsterMoveState: GKState{
             self.monster.lastPathPosition = nil
             self.monster.nextPathPosition = path[0].gridPosition
         }
+        //v0.2
+//        let cellAction = SKAction.run {
+//            if fromCenterCell {
+//                let old = self.monster.spawn?.field.cellInGridPosition(path[0].gridPosition)
+//                old?.updateWithMonster(self.monster, enterIn: false)
+//                
+//                let new = self.monster.spawn?.field.cellInGridPosition(path[1].gridPosition)
+//                new?.updateWithMonster(self.monster, enterIn: true)
+//                
+//                self.monster.lastPathPosition = path[0].gridPosition
+//                self.monster.nextPathPosition = path[1].gridPosition
+//            } else {
+//                if let oldPosition = self.monster.lastPathPosition {
+//                    let old = self.monster.spawn?.field.cellInGridPosition(oldPosition)
+//                    old?.updateWithMonster(self.monster, enterIn: false)
+//                }
+//                if let oldPosition = self.monster.nextPathPosition{
+//                    let old = self.monster.spawn?.field.cellInGridPosition(oldPosition)
+//                    old?.updateWithMonster(self.monster, enterIn: false)
+//                }
+//                let new = self.monster.spawn?.field.cellInGridPosition(path[0].gridPosition)
+//                new?.updateWithMonster(self.monster, enterIn: true)
+//                self.monster.lastPathPosition = nil
+//                self.monster.nextPathPosition = path[0].gridPosition
+//            }
+//        }
         
         //durations
         let xDuration = durationForValue(start: startPoint.x,
@@ -132,12 +163,10 @@ class MonsterMoveState: GKState{
         if abs(width) >= abs(height) {
             let moveAction = SKAction.sequence([actionY,actionX])
             let waitAction = SKAction.wait(forDuration: xDuration + yDuration)
+            //v0.2
+//            let cellSeq = SKAction.sequence([SKAction.wait(forDuration: yDuration + xDuration / 2),cellAction])
             let complAction = SKAction.run {
-                guard self.monster.updatePath == false else {
-                    self.monster.updatePath = false
-                    self.monster.stateMachine?.enter(MonsterMoveState.self)
-                    return
-                }
+               
                 guard self.monster.gridPath.count > 0 else {
                     //change state
                     self.monster.stateMachine?.enter(MonsterIdleState.self)
@@ -151,11 +180,15 @@ class MonsterMoveState: GKState{
             let complSeqAction = SKAction.sequence([waitAction,complAction])
             
             node.run(moveAction,withKey: ActionNames.monsterMove.rawValue)
+            //v0.2
+//            node.run(cellSeq,withKey: ActionNames.cellsUpdate.rawValue)
             node.run(complSeqAction,withKey: ActionNames.monsterMoveCompletion.rawValue)
             
         } else if abs(width) < abs(height) {
             let moveAction = SKAction.sequence([actionX,actionY])
             let waitAction = SKAction.wait(forDuration: xDuration + yDuration)
+            //v0.2
+//            let cellSeq = SKAction.sequence([SKAction.wait(forDuration: xDuration + yDuration / 2),cellAction])
             let complAction = SKAction.run {
                 guard self.monster.gridPath.count > 0 else {
                     //change state
@@ -171,12 +204,93 @@ class MonsterMoveState: GKState{
             let complSeqAction = SKAction.sequence([waitAction,complAction])
             
             node.run(moveAction,withKey: ActionNames.monsterMove.rawValue)
+            //v0.2
+//            node.run(cellSeq,withKey: ActionNames.cellsUpdate.rawValue)
             node.run(complSeqAction,withKey: ActionNames.monsterMoveCompletion.rawValue)
         } else {
             //width == height, unexpected behavior
             print("unexpected behavior in monster move to closest")
         }
     }
+//    func moveToEdge(){
+//        var fromCenterCell: Bool
+//        let path = monster.gridPath
+//        
+//        guard let node = monster.node else {
+//            //clear cells
+//            if let oldPosition = monster.lastPathPosition,
+//               let old = monster.spawn?.field.cellInGridPosition(oldPosition){
+//                old.updateWithMonster(monster, enterIn: false)
+//            }
+//            if let oldPosition = monster.nextPathPosition,
+//               let old = monster.spawn?.field.cellInGridPosition(oldPosition){
+//                old.updateWithMonster(monster, enterIn: false)
+//            }
+//            monster.die() // change state to attack 'block'?
+//            return
+//        }
+//        node.removeAction(forKey: ActionNames.monsterMove.rawValue)
+//        guard path.count > 1 else {
+//            //change cells state for towers aim component
+//            if let oldPosition = monster.lastPathPosition,
+//               let old = monster.spawn?.field.cellInGridPosition(oldPosition){
+//                old.updateWithMonster(monster, enterIn: false)
+//            }
+//            if let oldPosition = monster.nextPathPosition,
+//               let old = monster.spawn?.field.cellInGridPosition(oldPosition){
+//                old.updateWithMonster(monster, enterIn: false)
+//            }
+//            //new state for monster
+//            self.monster.stateMachine?.enter(MonsterIdleState.self)
+//            return
+//        }
+//        
+//        //check direction and change state if needed
+//        let width = node.position.x - SceneHelper.gridPositionToScene(position: path[1].gridPosition).x
+//        
+//        let height = node.position.y - SceneHelper.gridPositionToScene(position: path[1].gridPosition).y
+//        
+//        //direction changes
+//        if width == 0 {
+//            if height > 0 {
+//                //move down
+//                monster.visualDirection = .south
+//            } else if height < 0 {
+//                //move up
+//                monster.visualDirection = .north
+//            } else {
+//                //unexpected -idle
+//                monster.visualDirection = .south
+//            }
+//        } else if width > 0{
+//            //move left
+//            monster.visualDirection = .west
+//        } else if width < 0 {
+//            //move right
+//            monster.visualDirection = .east
+//        } else {
+//            //unexpected -idle
+//            monster.visualDirection = .south
+//        }
+//        
+//        let startPoint = node.position
+//        let startCell = monster.spawn?.field.cellInGridPosition(<#T##position: vector_int2##vector_int2#>)
+//        var endPoint: CGPoint = SceneHelper.gridPositionToScene(position: path[0].gridPosition)
+//        //find cell finish position
+//        //find duration
+//        //move to finish
+//        //
+//    }
+    //move to edge
+    //move to new cell start
+    //last cell state change
+    //move to next edge
+    
+    //start position
+    //end position
+    
+    
+    
     
     func durationForValue(start: CGFloat,end: CGFloat) -> CGFloat {
         let path = abs(end - start)

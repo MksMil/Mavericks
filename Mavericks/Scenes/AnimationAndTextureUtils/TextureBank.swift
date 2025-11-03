@@ -5,6 +5,8 @@ enum TextureKeys: String {
     case monster
     case field
     case tower
+    case block
+    case road
     case base
     case spawn
     case resource
@@ -23,6 +25,7 @@ class TextureBank: RaidDataSource{
     var moveDownTextures:[SKTexture] = []
     
     var towerTextures: [SKTexture] = []
+    var blockTextures: [SKTexture] = []
     
     var hudTextures: [SKTexture] = []
     var towerMenuTextures: [SKTexture] = []
@@ -30,9 +33,12 @@ class TextureBank: RaidDataSource{
     var pauseMenuTextures: [SKTexture] = []
     
     var fieldTextures: [SKTexture] = []
+    var roadTextures: [SKTexture] = []
     
+    //for loading screen
     var progress: Int = 0
-    var normalMap: [SKTexture] = []
+    
+//    var normalMap: [SKTexture] = []
     
     init(levelInfo: String, cellSize: CGFloat){
         self.levelInfo = levelInfo
@@ -60,22 +66,28 @@ class TextureBank: RaidDataSource{
         //change progress state
         await SKTexture.preload(pauseMenuTextures)
         //change progress state
+        await SKTexture.preload(roadTextures)
+        //change progress state
+        await SKTexture.preload(blockTextures)
+        //change progress state
 
     }
     
     func config(){
         makeFieldTexture()
+        makeRoadTexture()
         makeMonsterTexture()
         makeTowerTextures()
         makeHudMenuUpgradeSellButtonsTextures()
         makeHudMenuTowersButtonsTextures()
         makePauseMenuTextures()
+        makeBlockTexture()
     }
     
 }
 // MARK: - HUD
 extension TextureBank {
-    // MARK: PauseMenu
+    // MARK: PauseMenu buttons (resume,restart,options, exit)
     func makePauseMenuTextures(){
         let pauseMenuAtlas = SKTexture(imageNamed: "pauseMenu")
         for i in 0..<4 {
@@ -117,6 +129,23 @@ extension TextureBank {
     }
 }
 
+// MARK: - Road
+extension TextureBank {
+    func makeRoadTexture(){
+        let texture = SKTexture(imageNamed: "road")
+//        for i in 0..<1 {
+//            let rect = CGRect(
+//                x: CGFloat(i) * atlas.textureRect().width / 2 ,
+//                y: 0,
+//                width: atlas.textureRect().width / 2,
+//                height: atlas.textureRect().height)
+//            let texture = SKTexture(rect: rect, in: atlas)
+            roadTextures.append(texture)
+//        }
+
+    }
+}
+
 // MARK: - Field
 extension TextureBank{
     func makeFieldTexture(){
@@ -133,10 +162,24 @@ extension TextureBank{
         
         
     }
-    func makeRoadTexture(){
-        
+}
+    // MARK: - Block
+
+extension TextureBank {
+    func makeBlockTexture(){
+        let atlass = SKTexture(imageNamed: "block")
+//        for i in 0..<7 {
+//            let rect = CGRect(
+//                x: CGFloat(i) * atlass.textureRect().width / 7 ,
+//                y: 0,
+//                width: atlass.textureRect().width / 7,
+//                height: atlass.textureRect().height)
+//            let texture = SKTexture(rect: rect, in: atlass)
+            blockTextures.append(atlass)
+//        }
     }
 }
+
 
 // MARK: - Towers
 extension TextureBank{

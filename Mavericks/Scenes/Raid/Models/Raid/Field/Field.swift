@@ -110,7 +110,8 @@ extension Field {
         // all cells creation
         grid = (0..<gridHeight).map { y in
             (0..<gridWidth).map { x in
-                GridCell(position: vector_int2(Int32(x), Int32(y)),
+                GridCell(parent: self,
+                         position: vector_int2(Int32(x), Int32(y)),
                          type: .field,
                          node: nil)
             }
@@ -209,6 +210,10 @@ extension Field {
                     sprite = SKSpriteNode(texture: textureBank.fieldTextures.randomElement())
                     sprite.size = CGSize(width: cellSize,
                                          height: cellSize)
+                } else if cell.type == .road {
+                    sprite = SKSpriteNode(texture: textureBank.roadTextures.randomElement())
+                    sprite.size = CGSize(width: cellSize,
+                                         height: cellSize)
                 } else {
                     sprite = SKSpriteNode(
                         color: colorForCellType(cell.type),
@@ -218,7 +223,7 @@ extension Field {
                 sprite.position = gridPositionToScene(x: x, y: y)
                 sprite.name = "\(cell.type.rawValue)_\(x)_\(y)"
                 fieldNode.addChild(sprite)
-                grid[y][x].node = sprite
+                cell.node = sprite
             }
         }
         updatePathGraph()
@@ -272,8 +277,7 @@ extension Field {
 extension Field{
     func addBlockToCell(_ cell: GridCell){
         guard cell.type == .road  else { return }
-        cell.type = .block
-        cell.node?.color = colorForCellType(.block)
+        cell.addBlock()
         
         if let node = pathGraph.node(atGridPosition: cell.gridPosition){
             if cell.type != .road &&
@@ -289,8 +293,7 @@ extension Field{
     
     func removeBlockFromCell(_ cell: GridCell){
         guard cell.type == .block else { return }
-        cell.type = .road
-        cell.node?.color = colorForCellType(.road)
+        cell.removeBlock()
         if let node = pathGraph.node(atGridPosition: cell.gridPosition){
             node.addConnections(to: cell.neighbors, bidirectional: true)
         }
@@ -345,32 +348,43 @@ extension Field {
 
 // MARK: - Towers
 extension Field {
-    func addTowerToCell(_ cell: GridCell){
+    func addTower(_ tower: TowerType,toCell cell: GridCell){
         guard let textureBank else {
             print("texture bank doesn't exists")
             return
         }
         guard cell.type == .field else { return }
         cell.type = .tower
-        let position = gridPositionToScene(x: Int(cell.gridPosition.x),
-                                           y: Int(cell.gridPosition.y))
         
-        let model = TowerModel(type: TowerType.arrow,field: self,cell: cell)
+        let model = TowerModel(type: tower,
+                               field: self,
+                               cell: cell)
         
         towers.append(model)
+        var texture: SKTexture
+        switch tower {
+            case .arrow:
+                texture = textureBank.towerMenuTextures[0]
+            case .poison:
+                texture = textureBank.towerMenuTextures[1]
+            case .freeze:
+                texture = textureBank.towerMenuTextures[3]
+            case .electric:
+                texture = textureBank.towerMenuTextures[4]
+            case .fire:
+                texture = textureBank.towerMenuTextures[2]
+            case .stun:
+                texture = textureBank.towerMenuTextures[5]
+        }
         
-        if let texture = textureBank.towerTextures.first{
+        
             let node = BaseTowerNode(texture: texture,
                                      size: CGSize(width: cellSize,
                                                   height: cellSize),
                                                   parentUnit: model)
             model.node = node
-            node.position = position
-            cell.node = node
-            fieldNode.addChild(node)
-        } else {
-            print("empty txture")
-        }
+            cell.node?.addChild(node)
+        
     }
 }
 

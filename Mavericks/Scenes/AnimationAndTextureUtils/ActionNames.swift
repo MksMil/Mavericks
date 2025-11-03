@@ -10,5 +10,6 @@ import Foundation
 enum ActionNames: String{
     case monsterMove
     case monsterMoveCompletion
+    case cellsUpdate
     case monsterVisual
 }

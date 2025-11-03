@@ -1,9 +1,7 @@
 import GameplayKit
 import SpriteKit
 
-enum UnitDirection: String{
-    case north,south,east,west
-}
+
 
 class MonsterVisualComponent: GKComponent {
     

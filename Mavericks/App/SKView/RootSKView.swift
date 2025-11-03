@@ -17,11 +17,11 @@ class RootSKView: SKView {
     
     func loadScene(scene: RootScene){
         //TODO: options
+        
         if let scene = scene as? SKScene {
             presentScene(scene, transition: .crossFade(withDuration: 1))   
         }
     }
-    
     
     override func scrollWheel(with event: NSEvent) {
         router?.controlInputDelegate?.handleScrollWheel(with: event)
@@ -33,6 +33,7 @@ class RootSKView: SKView {
         router?.controlInputDelegate?.handleRotate(with: event)
     }
     override func mouseDown(with event: NSEvent) {
+//        print("root SKView receive event")
         router?.controlInputDelegate?.handleMouseDown(with: event)
         
     }

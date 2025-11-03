@@ -7,11 +7,12 @@ protocol RaidDataSource: AnyObject {
     var moveDownTextures:[SKTexture] {get set}
     
     var towerTextures: [SKTexture] {get set}
-    
+    var blockTextures: [SKTexture] {get set}
     var hudTextures: [SKTexture] {get set}
     var towerMenuTextures: [SKTexture] {get set}
     var upgradeSellTextures: [SKTexture] {get set}
     var fieldTextures: [SKTexture] {get set}
+    var roadTextures: [SKTexture] {get set}
     var pauseMenuTextures: [SKTexture] {get set}
     
     

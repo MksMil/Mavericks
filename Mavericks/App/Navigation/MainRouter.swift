@@ -4,7 +4,7 @@ import SpriteKit
 
 final class MainRouter: ObservableObject, MainViewDelegateProtocol{
     
-    var activeScene: RootScene = HomeScene()
+    weak var activeScene: RootScene?
 
     var renderDelegate: RootSKView?
     var controlInputDelegate: ControlInputDelegate?
@@ -35,12 +35,17 @@ final class MainRouter: ObservableObject, MainViewDelegateProtocol{
 // MARK: - MainViewDelegateProtocol
 extension MainRouter{
     func presentScene(_ scene: ScenePath) {
-
-       let newScene = loadScene(name: scene)
+        let newScene = loadScene(name: scene)
         newScene.mainViewDelegate = self
-        controlInputDelegate = newScene
-        renderDelegate?.loadScene(scene: newScene)
+        
+        // ← ОБНУЛЯЕМ СТАРОЕ
+        activeScene = nil
+        controlInputDelegate = nil
+        
         activeScene = newScene
+        controlInputDelegate = newScene
+        
+        renderDelegate?.loadScene(scene: newScene)
     }
 }
 

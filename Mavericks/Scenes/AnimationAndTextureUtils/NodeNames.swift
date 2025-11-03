@@ -10,12 +10,12 @@ enum NodeNames: String{
     case resume, restart, options, exit
     case pause
     
-    case camera = "cameraNode"
-    case base = "base"
-    case resource = "resource"
-    case monsterSpawn = "monsterSpawn"
-    case turret = "turret"
-    case monster = "monster"
-    case block = "block"
-    
+    case camera
+    case base
+    case resource
+    case monsterSpawn
+    case monster
+    case block
+    case road
+    case field
 }

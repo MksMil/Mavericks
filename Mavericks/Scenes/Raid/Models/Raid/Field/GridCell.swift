@@ -6,6 +6,7 @@ enum GridCellState {
 }
 
 class GridCell: GKEntity {
+    let parent: Field
     let gridPosition: vector_int2
     var scenePosition: CGPoint {
         let cellSize = 100.0
@@ -19,12 +20,14 @@ class GridCell: GKEntity {
     var neighbors: [GKGraphNode] = []
     
     var monsters: [MonsterModel] = []
-    
+    var block: BlockModel?
     var state: GridCellState = .empty
     
-    init(position: vector_int2,
+    init(parent: Field,
+        position: vector_int2,
          type: GridCellType,
          node: SKSpriteNode? = nil) {
+        self.parent = parent
         self.gridPosition = position
         self.type = type
         self.node = node
@@ -35,6 +38,21 @@ class GridCell: GKEntity {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+// MARK: - Block
+extension GridCell{
+    func addBlock(){
+        type = .block
+        block = BlockModel()
+        guard let bank = parent.textureBank else { return }
+        let sprite = SKSpriteNode(texture: bank.blockTextures[0])
+        block?.node = sprite
+        node?.addChild(sprite)
+    }
+    func removeBlock(){
+        type = .road
+        block?.node?.removeFromParent()
+    }
 }
 
 // MARK: - monster towers
