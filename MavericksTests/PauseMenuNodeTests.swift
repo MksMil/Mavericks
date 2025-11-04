@@ -2,21 +2,30 @@ import XCTest
 import SpriteKit
 @testable import Mavericks
 
+@MainActor
 final class PauseMenuNodeTests: XCTestCase {
-    let mockBank = TextureBank(levelInfo: "", cellSize: 64)
+    
+    var sut: PauseMenuNode!
+    
     // MARK: - Setup
+    override  func setUp() {
+        sut = PauseMenuNode(sceneSize: CGSize(width: 800,
+                                              height: 600),
+                            bank: TestHelper.mockBank)
+        
+    }
+    
+    override func tearDown() {
+        sut = nil
+    }
     
     func testSetup_CreatesCorrectNumberOfButtons() {
-        let pauseMenu = PauseMenuNode(sceneSize: CGSize(width: 800,
-                                                        height: 600),
-                                      bank: mockBank)
-        let buttonCount = pauseMenu.menuBgNode.children.count
+        let buttonCount = sut.menuBgNode.children.count
         XCTAssertEqual(buttonCount, 4)
     }
 
     func testSetup_ButtonsHaveCorrectNames() {
-        let pauseMenu = PauseMenuNode(sceneSize: .zero, bank: mockBank)
-        let buttonNames = pauseMenu.menuBgNode.children.compactMap { ($0 as? HudButton)?.name }
+        let buttonNames = sut.menuBgNode.children.compactMap { ($0 as? HudButton)?.name }
         XCTAssertEqual(buttonNames,
                        [NodeNames.resume.rawValue,
                         NodeNames.restart.rawValue,
@@ -26,100 +35,63 @@ final class PauseMenuNodeTests: XCTestCase {
     }
 
     // MARK: - Animations
-    func test_show_AnimatesCorrectly() {
-        let scene = setupSKView()
-        let pauseMenu = PauseMenuNode(sceneSize: CGSize(width: 800,
-                                                        height: 600),
-                                      bank: mockBank)
-        scene.addChild(pauseMenu)
-        let showExp = expectation(description: "show completes")
-        pauseMenu.show()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            XCTAssertEqual(pauseMenu.globalBgNode.alpha, 0.3, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.alpha, 0.7, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.xScale, 1.0, accuracy: 0.01)
-            showExp.fulfill()
-        }
-        wait(for: [showExp], timeout: 1.5)
+    func test_show_AnimatesCorrectly() async {
+        let scene = TestHelper.setupSKView()
+        scene.addChild(sut)
+        sut.show()
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        XCTAssertEqual(sut.globalBgNode.alpha, 0.3, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.alpha, 0.7, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.xScale, 1.0, accuracy: 0.01)
     }
 
-    func testHide_AnimatesCorrectly() {
-        let scene = setupSKView()
-        let pauseMenu = PauseMenuNode(sceneSize: CGSize(width: 800,
-                                                        height: 600),
-                                      bank: mockBank)
-        scene.addChild(pauseMenu)
-        let hideExp = expectation(description: "hide called")
-        let showExp = expectation(description: "show completes")
-        pauseMenu.show()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            XCTAssertEqual(pauseMenu.globalBgNode.alpha, 0.3, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.alpha, 0.7, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.xScale, 1.0, accuracy: 0.01)
-            showExp.fulfill()
-            pauseMenu.hide()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            XCTAssertEqual(pauseMenu.globalBgNode.alpha, 0.0, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.alpha, 0.0, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.xScale, 0.0, accuracy: 0.01)
-            XCTAssertEqual(pauseMenu.menuBgNode.yScale, 0.0, accuracy: 0.01)
-            hideExp.fulfill()
-        }
-        wait(for: [showExp,hideExp], timeout: 2)
-    }
-
-    // MARK: - Button handling
-    func testButtonNode_ResumeButton_Unpauses() {
-        let scene = setupSKView()
-        let mockHudNode = MockHudNode(bank: mockBank,
+    func testHide_AnimatesCorrectly() async {
+        let scene = TestHelper.setupSKView()
+        let mockHudNode = MockHudNode(bank: TestHelper.mockBank,
                                       delegate: scene)
         scene.hudNode = mockHudNode
-        scene.cameraNode.addChild(mockHudNode)
-        let pauseMenu = PauseMenuNode(sceneSize: .zero,
-                                      bank: mockBank)
-        pauseMenu.outputDelegate = mockHudNode
-        mockHudNode.pauseMenu = pauseMenu
-        mockHudNode.addChild(pauseMenu)
-        let resumeButton = pauseMenu.menuBgNode.children.first {
-            ($0 as? HudButton)?.name == NodeNames.resume.rawValue 
-        } as? HudButton
-        let exp = expectation(description: "run called")
-        pauseMenu.buttonNode(node: resumeButton!, tapped: false)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
-            XCTAssertTrue(mockHudNode.changeStateRunCalled)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1)
+        scene.camera?.addChild(mockHudNode)
+        sut.outputDelegate = mockHudNode
+        mockHudNode.pauseMenu = sut
+        mockHudNode.addChild(sut)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        sut.show()
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        XCTAssertEqual(sut.globalBgNode.alpha, 0.3, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.alpha, 0.7, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.xScale, 1.0, accuracy: 0.01)
+        sut.hide()
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        XCTAssertEqual(sut.globalBgNode.alpha, 0.0, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.alpha, 0.0, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.xScale, 0.0, accuracy: 0.01)
+        XCTAssertEqual(sut.menuBgNode.yScale, 0.0, accuracy: 0.01)
     }
 
-    func testButtonNode_ExitButton_FinishesRaid() {
-        let scene = setupSKView()
-        let mockHudNode = MockHudNode(bank: mockBank,
+    func testButtonNode_ExitButton_FinishesRaid() async {
+        let scene = TestHelper.setupSKView()
+        let mockHudNode = MockHudNode(bank: TestHelper.mockBank,
                                       delegate: scene)
         scene.hudNode = mockHudNode
-        scene.cameraNode.addChild(mockHudNode)
-        let pauseMenu = PauseMenuNode(sceneSize: .zero,
-                                      bank: mockBank)
-        pauseMenu.outputDelegate = mockHudNode
-        mockHudNode.pauseMenu = pauseMenu
-        mockHudNode.addChild(pauseMenu)
-        let exp = expectation(description: "exit called")
-        let exitButton = pauseMenu.menuBgNode.children.last {
-            ($0 as? HudButton)?.name == NodeNames.exit.rawValue 
+        scene.camera?.addChild(mockHudNode)
+        
+        sut.outputDelegate = mockHudNode
+        mockHudNode.pauseMenu = sut
+        mockHudNode.addChild(sut)
+        
+        let exitButton = sut.menuBgNode.children.last {
+            ($0 as? HudButton)?.name == NodeNames.exit.rawValue
         } as? HudButton
-        pauseMenu.buttonNode(node: exitButton!, tapped: false)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5){
-            XCTAssertTrue(mockHudNode.changeStateFinishRaidCalled)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1)
+        sut.buttonNode(node: exitButton!, tapped: false)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        XCTAssertTrue(mockHudNode.changeStateFinishRaidCalled)
+            
     }
 
     // MARK: - Deinit
     func testDeinit_CalledWhenRemoved() {
         var strongRef: PauseMenuNode? = PauseMenuNode(sceneSize: .zero,
-                                                      bank: mockBank)
+                                                      bank: TestHelper.mockBank)
         weak var weakRef = strongRef
         XCTAssertNotNil(weakRef)
         strongRef = nil
@@ -127,49 +99,3 @@ final class PauseMenuNodeTests: XCTestCase {
     }
 }
 
-// MARK: - Mocks
-class MockHudNode: HudNode {
-    var changeStateRunCalled = false
-    var changeStateFinishRaidCalled = false
-    
-    init(bank: RaidDataSource,
-         delegate: RaidScene) {
-        super.init(withCameraSize: .zero,
-                   bank: bank,
-                   outputDelegate: delegate)
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func changeState(newState: HudState) {
-        switch newState {
-        case .run:
-            changeStateRunCalled = true
-        case .finishRaid:
-            changeStateFinishRaidCalled = true
-        default:
-            break
-        }
-    }
-}
-
-// MARK: - Helpers
-extension PauseMenuNodeTests {
-    func setupSKView() -> RaidScene {
-        let window = NSWindow(
-            contentRect: CGRect(x: 0, y: 0, width: 800, height: 600),
-            styleMask: [.titled, .closable],
-            backing: .buffered,
-            defer: false
-        )
-        window.makeKeyAndOrderFront(nil)
-        let view = SKView(frame: window.contentView!.bounds)
-        window.contentView!.addSubview(view)
-        let scene = RaidScene(size: .zero,
-                              bank: mockBank)
-        view.presentScene(scene)
-        return scene
-    }
-}

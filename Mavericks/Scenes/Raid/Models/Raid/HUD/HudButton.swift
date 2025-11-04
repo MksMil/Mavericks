@@ -13,5 +13,6 @@ class HudButton: SKSpriteNode{
         self.size = size
         self.position = position
         isUserInteractionEnabled = false
+        self.texture = SKTexture(imageNamed: name)
     }
 }

@@ -1,20 +1,27 @@
-//
-//  HudNodeTests.swift
-//  Mavericks
-//
-//  Created by Миляев Максим on 03.11.2025.
-//
-
-
 import XCTest
 import SpriteKit
 @testable import Mavericks
 
+@MainActor
 final class HudNodeTests: XCTestCase {
-    let mockBank = TextureBank(levelInfo: "", cellSize: 64)
     
+    var scene: RaidScene!
+    var hud: HudNode!
     
+    override func setUp() {
+        super.setUp()
+        scene = TestHelper.setupSKView()
+        hud = HudNode(withCameraSize: .zero,
+                      bank: TestHelper.mockBank,
+                      outputDelegate: scene)
+        scene.cameraNode.addChild(hud)
+    }
     
+    override func tearDown() {
+        scene = nil
+        hud = nil
+        super.tearDown()
+    }
     // MARK: - Setup
 //    func testSetup_CreatesPauseButton() {
 //        let scene = setupSKView()
@@ -26,126 +33,81 @@ final class HudNodeTests: XCTestCase {
 //    }
     
     func testSetup_CreatesPauseMenu() {
-        let scene = setupSKView()
-        let hud = HudNode(withCameraSize: .zero, bank: mockBank, outputDelegate: scene)
-        
         XCTAssertNotNil(hud.pauseMenu)
         XCTAssertTrue(hud.children.contains(where: { $0 === hud.pauseMenu }))
     }
     
     // MARK: - Menu Animations
-    func testShowMenu_AnimatesPauseMenu() {
-        let scene = setupSKView()
-        let hud = HudNode(withCameraSize: .zero, bank: mockBank, outputDelegate: scene)
-        scene.addChild(hud)
-        
-        let exp = expectation(description: "show menu")
+    func testShowMenu_AnimatesPauseMenu() async {
         
         hud.showPauseMenu()
+        let menu = hud.pauseMenu
+        try? await Task.sleep(nanoseconds: 500_000_000)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let menu = hud.pauseMenu
-            XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
-            XCTAssertEqual(menu.menuBgNode.alpha, 0.7, accuracy: 0.01)
-            XCTAssertEqual(menu.menuBgNode.xScale, 1.0, accuracy: 0.01)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
+        XCTAssertEqual(menu.menuBgNode.alpha, 0.7, accuracy: 0.01)
+        XCTAssertEqual(menu.menuBgNode.xScale, 1.0, accuracy: 0.01)
     }
     
-    func testHideMenu_AnimatesPauseMenu() {
-        let scene = setupSKView()
-        let hud = HudNode(withCameraSize: scene.size,
-                          bank: mockBank,
-                          outputDelegate: scene)
-        scene.addChild(hud)
+    func testHideMenu_AnimatesPauseMenu() async {
+        
         let menu = hud.pauseMenu
         XCTAssertEqual(menu.globalBgNode.alpha, 0.0, accuracy: 0.01)
         XCTAssertEqual(menu.menuBgNode.alpha, 0.0, accuracy: 0.01)
         XCTAssertEqual(menu.menuBgNode.xScale, 0.0, accuracy: 0.01)
         hud.showPauseMenu()
-        let expShow = expectation(description: "show menu")
-        let expHide = expectation(description: "hide menu")
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
-            XCTAssertEqual(menu.menuBgNode.alpha, 0.7, accuracy: 0.01)
-            XCTAssertEqual(menu.menuBgNode.xScale, 1.0, accuracy: 0.01)
-            expShow.fulfill()
-            hud.hidePauseMenu()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            
-            XCTAssertEqual(menu.globalBgNode.alpha, 0.0, accuracy: 0.01)
-            XCTAssertEqual(menu.menuBgNode.alpha, 0.0, accuracy: 0.01)
-            XCTAssertEqual(menu.menuBgNode.xScale, 0.0, accuracy: 0.01)
-            expHide.fulfill()
-        }
-        wait(for: [expShow,expHide], timeout: 2.5)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
+        XCTAssertEqual(menu.menuBgNode.alpha, 0.7, accuracy: 0.01)
+        XCTAssertEqual(menu.menuBgNode.xScale, 1.0, accuracy: 0.01)
+        hud.hidePauseMenu()
+        try? await Task.sleep(nanoseconds: 1500_000_000)
+        XCTAssertEqual(menu.globalBgNode.alpha, 0.0, accuracy: 0.01)
+        XCTAssertEqual(menu.menuBgNode.alpha, 0.0, accuracy: 0.01)
+        XCTAssertEqual(menu.menuBgNode.xScale, 0.0, accuracy: 0.01)
+
     }
     
     // MARK: - Button Interaction
-    func testPauseButton_Tap_ShowsMenu() {
-        let scene = setupSKView()
-        let hud = HudNode(withCameraSize: scene.size, bank: mockBank, outputDelegate: scene)
-        scene.addChild(hud)
-        
-//        let pauseButton = hud.pauseButton
-        
-        let exp = expectation(description: "menu shown")
-
+    func testPauseButton_Tap_ShowsMenu() async {
         hud.showPauseMenu()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let menu = hud.pauseMenu
-            XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        let menu = hud.pauseMenu
+        XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
     }
     
     // MARK: - State Change
-    func testChangeState_Pause_ShowsMenu() {
-        let scene = setupSKView()
-        let hud = HudNode(withCameraSize: scene.size, bank: mockBank, outputDelegate: scene)
-        scene.addChild(hud)
-        
-        let exp = expectation(description: "menu shown on pause")
-        
+    func testChangeState_Pause_ShowsMenu() async {
         hud.changeState(newState: .pause)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let menu = hud.pauseMenu
-            XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        let menu = hud.pauseMenu
+        XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
     }
     
-    func testChangeState_Run_HidesMenu() {
-        let scene = setupSKView()
+    func testChangeState_Run_HidesMenu() async {
+        let scene = TestHelper.setupSKView()
         let hud = HudNode(withCameraSize: scene.size,
-                          bank: mockBank,
+                          bank: TestHelper.mockBank,
                           outputDelegate: scene)
-        scene.addChild(hud)
+        scene.cameraNode.addChild(hud)
         hud.changeState(newState: .pause)  // Сначала показываем
-        
-        let exp = expectation(description: "menu hidden on run")
+                
+        try? await Task.sleep(nanoseconds: 1000_000_000)
         
         hud.changeState(newState: .run)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let menu = hud.pauseMenu
-            XCTAssertEqual(menu.globalBgNode.alpha, 0.0, accuracy: 0.01)
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        try? await Task.sleep(nanoseconds: 1000_000_000)
+        
+        let menu = hud.pauseMenu
+        XCTAssertEqual(menu.globalBgNode.alpha, 0.0, accuracy: 0.01)
+        
     }
     
     // MARK: - Deinit
     func testDeinit_CalledWhenRemoved() {
-        let scene = setupSKView()
-        var strongRef: HudNode? = HudNode(withCameraSize: .zero, bank: mockBank, outputDelegate: scene)
+        
+        var strongRef: HudNode? = hud
         weak var weakRef = strongRef
         
         strongRef = nil
@@ -153,22 +115,3 @@ final class HudNodeTests: XCTestCase {
     }
 }
 
-// MARK: - Helper
-extension HudNodeTests {
-    func setupSKView() -> RaidScene {
-        let window = NSWindow(
-            contentRect: CGRect(x: 0, y: 0, width: 800, height: 600),
-            styleMask: [.titled, .closable],
-            backing: .buffered,
-            defer: false
-        )
-        window.makeKeyAndOrderFront(nil)
-        let view = SKView(frame: window.contentView!.bounds)
-        window.contentView!.addSubview(view)
-        let scene = RaidScene(size: .zero,
-                              bank: mockBank)
-        view.presentScene(scene)
-        return scene
-    }
-
-}

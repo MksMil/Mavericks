@@ -4,7 +4,7 @@ import SwiftUI
 // TODO: #ifOS iOS macOS
 
 class RootSKView: SKView {
-    
+    var duration: CGFloat = 1
     weak var router: MainRouter?
     
     override func awakeFromNib() {
@@ -19,10 +19,11 @@ class RootSKView: SKView {
         //TODO: options
         
         if let scene = scene as? SKScene {
-            presentScene(scene, transition: .crossFade(withDuration: 1))   
+            presentScene(scene, transition: .crossFade(withDuration: duration))
         }
     }
     
+    // MARK: ControlInputDelegate
     override func scrollWheel(with event: NSEvent) {
         router?.controlInputDelegate?.handleScrollWheel(with: event)
     }

@@ -13,7 +13,7 @@ class HudNode: SKNode, RaidDataInformer{
     
     let bank: RaidDataSource
     weak var controlInputDelegate: ControlInputDelegate?
-    var state: HudState = .run
+//    var state: HudState = .run
     
     var mainHUD: RaidMainHUD
     //protocol !
@@ -63,9 +63,7 @@ class HudNode: SKNode, RaidDataInformer{
         
         position = CGPoint(x: -size.width / 2,
                            y: -size.height / 2)
-//        isUserInteractionEnabled = true
         setup()
-        
         pauseMenu.outputDelegate = self
         addChild(pauseMenu)
     }
@@ -83,10 +81,11 @@ class HudNode: SKNode, RaidDataInformer{
 //    }
     
     func changeState(newState: HudState){
-        self.state = newState
+//        self.state = newState
         switch newState {
             case .pause:
                 controlInputDelegate = pauseMenu
+                outputDelegate?.changeState(newState: .pauseMenu)
                 showPauseMenu()
             case .run:
                 outputDelegate?.changeState(newState: .raid)
@@ -96,8 +95,6 @@ class HudNode: SKNode, RaidDataInformer{
                 print("hud finished")
                 hidePauseMenu()
                 pauseMenu.outputDelegate = nil
-                pauseMenu.removeFromParent()
-                towerMenu.removeFromParent()
                 outputDelegate?.changeState(newState: .finish)
            @unknown default: break
         }

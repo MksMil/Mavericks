@@ -125,7 +125,7 @@ extension TextureBank {
             let texture = SKTexture(rect: rect, in: towerAtlas)
             towerMenuTextures.append(texture)
         }
-        print("textures loaded \(towerMenuTextures.count), \(upgradeSellTextures.count)")
+//        print("textures loaded \(towerMenuTextures.count), \(upgradeSellTextures.count)")
     }
 }
 

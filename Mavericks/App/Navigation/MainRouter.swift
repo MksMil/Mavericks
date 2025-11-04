@@ -37,15 +37,16 @@ extension MainRouter{
     func presentScene(_ scene: ScenePath) {
         let newScene = loadScene(name: scene)
         newScene.mainViewDelegate = self
+//        
+//        // ← ОБНУЛЯЕМ СТАРОЕ
         
-        // ← ОБНУЛЯЕМ СТАРОЕ
-        activeScene = nil
+//        activeScene = nil
         controlInputDelegate = nil
-        
+        (activeScene as? RaidScene)?.prepareToRemove()
+        renderDelegate?.loadScene(scene: newScene)
         activeScene = newScene
         controlInputDelegate = newScene
         
-        renderDelegate?.loadScene(scene: newScene)
     }
 }
 

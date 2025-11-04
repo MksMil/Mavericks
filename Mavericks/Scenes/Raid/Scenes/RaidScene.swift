@@ -63,11 +63,18 @@ class RaidScene: SKScene, RootScene {
         setupHUD()
     }
     
-    override func willMove(from view: SKView) {
-        
-        hudNode = nil  // ← КРИТИЧЕСКИ ВАЖНО
+    func prepareToRemove(){
+        field?.fieldNode.removeAllActions()
+        field?.fieldNode.removeAllChildren()
+        field?.fieldNode.removeFromParent()
+        cameraNode.removeAllChildren()
+        cameraNode.removeAllActions()
+        cameraNode.removeFromParent()
+        hudNode = nil //!
+        removeAllChildren()
+        removeAllActions()
+        camera = nil
     }
-    
     deinit{
         print("raid scene deinit")
     }
@@ -85,9 +92,10 @@ extension RaidScene {
                 //hud -> pause
                 //state = newState
                 field?.pause()
-                hudNode?.changeState(newState: .pause)
+//                hudNode?.changeState(newState: .pause)
             case .raid:
                 field?.run()
+//                hudNode?.changeState(newState: .run)
 //            case .initial:
 //                <#code#>
 //            case .towerMenu:
@@ -142,7 +150,7 @@ extension RaidScene {
     func setupHUD(){
         guard let bank else { return }
         hudNode = HudNode(withCameraSize: view?.frame.size ?? .zero,bank: bank,outputDelegate: self)
-//        hudNode?.outputDelegate = self
+        hudNode?.outputDelegate = self
         guard let hudNode  = hudNode as? SKNode else {
             print("can't load hud, unexpected behavior in setupHUD")
             return
@@ -151,7 +159,7 @@ extension RaidScene {
     }
     
     func handleHudEvent(withNode node: HudButton){
-        print("handle hud event")
+        
             switch node.name {
                 case NodeNames.pause.rawValue:
                     switch self.state {
