@@ -10,7 +10,7 @@ final class RaidSceneTests: XCTestCase {
     override func setUp() {
         super.setUp()
         scene = TestHelper.setupSKView()
-        hud = HudNode(withCameraSize: .zero, bank: TestHelper.mockBank, outputDelegate: scene)
+        hud = HudNode(withCameraSize: .zero, bank: TestHelper.mockBank)
         scene.cameraNode.addChild(hud)
     }
     

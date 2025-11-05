@@ -4,10 +4,10 @@ import SpriteKit
 
 final class MainRouter: ObservableObject, MainViewDelegateProtocol{
     
-    weak var activeScene: RootScene?
+//    weak var activeScene: RootScene?
 
     var renderDelegate: RootSKView?
-    var controlInputDelegate: ControlInputDelegate?
+    weak var controlInputDelegate: ControlInputDelegate?
     
     // MARK: - Init
     init() {}
@@ -22,6 +22,8 @@ final class MainRouter: ObservableObject, MainViewDelegateProtocol{
                                               initialSize: CGSize(width: 800,
                                                                   height: 800),
                                               cellSize: 18)
+//                return RaidScene(size: .zero,
+//                                 bank: TextureBank(levelInfo: "", cellSize: 64))
             case .testScene:
                 return TestScene()
               default:
@@ -37,15 +39,8 @@ extension MainRouter{
     func presentScene(_ scene: ScenePath) {
         let newScene = loadScene(name: scene)
         newScene.mainViewDelegate = self
-//        
-//        // ← ОБНУЛЯЕМ СТАРОЕ
-        
-//        activeScene = nil
-        controlInputDelegate = nil
-        (activeScene as? RaidScene)?.prepareToRemove()
-        renderDelegate?.loadScene(scene: newScene)
-        activeScene = newScene
         controlInputDelegate = newScene
+        renderDelegate?.loadScene(scene: newScene)
         
     }
 }

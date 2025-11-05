@@ -4,7 +4,7 @@ import SwiftUI
 // TODO: #ifOS iOS macOS
 
 class RootSKView: SKView {
-    var duration: CGFloat = 1
+    var duration: CGFloat = 0.3
     weak var router: MainRouter?
     
     override func awakeFromNib() {

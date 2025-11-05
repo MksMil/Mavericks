@@ -22,12 +22,16 @@ class RaidScene: SKScene, RootScene {
         super.init(size: size)
     }
     weak var mainViewDelegate: MainViewDelegateProtocol?
-    weak var controlInputDelegate: ControlInputDelegate?
-    weak var field: Field?
+    var field: Field?
     
     weak var bank: RaidDataSource?
     var state: SceneState = .initial
     var selectedCell: GridCell?
+    
+    var cameraNode = SKCameraNode()
+    var hudNode: RaidDataInformer?
+    
+    private let cellSize: CGFloat = 100.0
     
     private var resourceCount: Int = 0
     private let resourceLimit: Int = 100
@@ -35,15 +39,8 @@ class RaidScene: SKScene, RootScene {
     private var isCollecting: Bool = false
     private var waveNumber: Int = 0
     
-    var cameraNode = SKCameraNode()
-    
-    var hudNode: RaidDataInformer?
-    
-    private let cellSize: CGFloat = 100.0
-    
     private let gridWidth = 30
     private let gridHeight = 30
-    
     //camera constraints for expand level
     //expandable size
     
@@ -64,11 +61,13 @@ class RaidScene: SKScene, RootScene {
     }
     
     func prepareToRemove(){
+        print("prepare to remove raid")
         field?.fieldNode.removeAllActions()
         field?.fieldNode.removeAllChildren()
         field?.fieldNode.removeFromParent()
-        cameraNode.removeAllChildren()
+        field = nil
         cameraNode.removeAllActions()
+        cameraNode.removeAllChildren()
         cameraNode.removeFromParent()
         hudNode = nil //!
         removeAllChildren()
@@ -111,15 +110,10 @@ extension RaidScene {
             case .finish:
                 // animation
                 // data transfer
+                prepareToRemove()
                 mainViewDelegate?.presentScene(.home)
                 print("finish raid")
-                removeAllActions()
-                enumerateChildNodes(withName: "//*") { node, _ in
-                    node.removeAllActions()
-                }
-                removeAllChildren()
-                hudNode = nil
-                controlInputDelegate = nil
+                
                 //            case .heroSelected:
 //                <#code#>
 //            case .monsterSelected:
@@ -149,8 +143,8 @@ extension RaidScene {
     
     func setupHUD(){
         guard let bank else { return }
-        hudNode = HudNode(withCameraSize: view?.frame.size ?? .zero,bank: bank,outputDelegate: self)
-        hudNode?.outputDelegate = self
+        hudNode = HudNode(withCameraSize: view?.frame.size ?? .zero,bank: bank)
+        
         guard let hudNode  = hudNode as? SKNode else {
             print("can't load hud, unexpected behavior in setupHUD")
             return
@@ -286,11 +280,11 @@ extension RaidScene {
                     print("road tapped")
                 case NodeNames.field.rawValue:
                     print("field tapped")
-                default:
-                    controlInputDelegate = self
+                default: return
+//                    controlInputDelegate = self
             }
         } else {
-            controlInputDelegate = self
+//            controlInputDelegate = self
         }
     }
 }
@@ -307,6 +301,9 @@ extension RaidScene: ControlInputDelegate {
     
     // macOS: обработка событий
     #if os(macOS)
+    func handleMouseUp(with event: NSEvent) {
+//        controlInputDelegate?.handleMouseUp(with: event)
+    }
     func handleMouseDown(with event: NSEvent) {
         let location = event.location(in: self)
         //node type -> change state with nodes value
@@ -316,12 +313,15 @@ extension RaidScene: ControlInputDelegate {
         // monster -> info
         // tower / block -> hud menu
         
+        //hud - visual
+        //field - game
+        
         // define delegate for node.name / type
 
         switch state {
             case .pauseMenu:
-                controlInputDelegate = hudNode?.controlInputDelegate
-                controlInputDelegate?.handleMouseDown(with: event)
+//                controlInputDelegate = hudNode?.controlInputDelegate
+//                controlInputDelegate?.handleMouseDown(with: event)
                 return
             case .raid:
                 if let tappedNode = nodes(at: location).first as? HudButton{
@@ -387,9 +387,7 @@ extension RaidScene: ControlInputDelegate {
     
     func handleRotate(with event: NSEvent) {}
     
-    func handleMouseUp(with event: NSEvent) {
-        controlInputDelegate?.handleMouseUp(with: event)
-    }
+    
     
     
     func handleMouseMoved(with event: NSEvent) {}

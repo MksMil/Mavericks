@@ -12,8 +12,7 @@ final class HudNodeTests: XCTestCase {
         super.setUp()
         scene = TestHelper.setupSKView()
         hud = HudNode(withCameraSize: .zero,
-                      bank: TestHelper.mockBank,
-                      outputDelegate: scene)
+                      bank: TestHelper.mockBank)
         scene.cameraNode.addChild(hud)
     }
     
@@ -39,7 +38,6 @@ final class HudNodeTests: XCTestCase {
     
     // MARK: - Menu Animations
     func testShowMenu_AnimatesPauseMenu() async {
-        
         hud.showPauseMenu()
         let menu = hud.pauseMenu
         try? await Task.sleep(nanoseconds: 500_000_000)
@@ -88,8 +86,7 @@ final class HudNodeTests: XCTestCase {
     func testChangeState_Run_HidesMenu() async {
         let scene = TestHelper.setupSKView()
         let hud = HudNode(withCameraSize: scene.size,
-                          bank: TestHelper.mockBank,
-                          outputDelegate: scene)
+                          bank: TestHelper.mockBank)
         scene.cameraNode.addChild(hud)
         hud.changeState(newState: .pause)  // Сначала показываем
                 
@@ -106,10 +103,9 @@ final class HudNodeTests: XCTestCase {
     
     // MARK: - Deinit
     func testDeinit_CalledWhenRemoved() {
-        
-        var strongRef: HudNode? = hud
+        var strongRef: HudNode? = HudNode(withCameraSize: .zero,
+                                          bank: TestHelper.mockBank)
         weak var weakRef = strongRef
-        
         strongRef = nil
         XCTAssertNil(weakRef)
     }

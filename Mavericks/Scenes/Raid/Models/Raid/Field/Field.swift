@@ -2,7 +2,7 @@ import SpriteKit
 import GameplayKit
 
 class Field: GKEntity {
-    let scene: RaidScene
+    weak var scene: RaidScene?
     //texture bank
     let textureBank: RaidDataSource?
     
@@ -55,7 +55,7 @@ class Field: GKEntity {
     func generateField() {
         setupGrid()
         //with animation add fieldNode
-        scene.addChild(fieldNode)
+        scene?.addChild(fieldNode)
     }
     
     func addNewZone(){
@@ -90,8 +90,6 @@ extension  Field {
     func updatePaths(){
         pathComponentSystem.update(deltaTime: 0)
     }
-    
-    
 }
 
 // MARK: - Graph

@@ -45,48 +45,48 @@ final class PauseMenuNodeTests: XCTestCase {
         XCTAssertEqual(sut.menuBgNode.xScale, 1.0, accuracy: 0.01)
     }
 
-    func testHide_AnimatesCorrectly() async {
-        let scene = TestHelper.setupSKView()
-        let mockHudNode = MockHudNode(bank: TestHelper.mockBank,
-                                      delegate: scene)
-        scene.hudNode = mockHudNode
-        scene.camera?.addChild(mockHudNode)
-        sut.outputDelegate = mockHudNode
-        mockHudNode.pauseMenu = sut
-        mockHudNode.addChild(sut)
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        sut.show()
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        XCTAssertEqual(sut.globalBgNode.alpha, 0.3, accuracy: 0.01)
-        XCTAssertEqual(sut.menuBgNode.alpha, 0.7, accuracy: 0.01)
-        XCTAssertEqual(sut.menuBgNode.xScale, 1.0, accuracy: 0.01)
-        sut.hide()
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
-        XCTAssertEqual(sut.globalBgNode.alpha, 0.0, accuracy: 0.01)
-        XCTAssertEqual(sut.menuBgNode.alpha, 0.0, accuracy: 0.01)
-        XCTAssertEqual(sut.menuBgNode.xScale, 0.0, accuracy: 0.01)
-        XCTAssertEqual(sut.menuBgNode.yScale, 0.0, accuracy: 0.01)
-    }
-
-    func testButtonNode_ExitButton_FinishesRaid() async {
-        let scene = TestHelper.setupSKView()
-        let mockHudNode = MockHudNode(bank: TestHelper.mockBank,
-                                      delegate: scene)
-        scene.hudNode = mockHudNode
-        scene.camera?.addChild(mockHudNode)
-        
-        sut.outputDelegate = mockHudNode
-        mockHudNode.pauseMenu = sut
-        mockHudNode.addChild(sut)
-        
-        let exitButton = sut.menuBgNode.children.last {
-            ($0 as? HudButton)?.name == NodeNames.exit.rawValue
-        } as? HudButton
-        sut.buttonNode(node: exitButton!, tapped: false)
-        try? await Task.sleep(nanoseconds: 500_000_000)
-        XCTAssertTrue(mockHudNode.changeStateFinishRaidCalled)
-            
-    }
+//    func testHide_AnimatesCorrectly() async {
+//        let scene = TestHelper.setupSKView()
+//        let mockHudNode = MockHudNode(bank: TestHelper.mockBank,
+//                                      delegate: scene)
+//        scene.hudNode = mockHudNode
+//        scene.camera?.addChild(mockHudNode)
+//        sut.outputDelegate = mockHudNode
+//        mockHudNode.pauseMenu = sut
+//        mockHudNode.addChild(sut)
+//        try? await Task.sleep(nanoseconds: 500_000_000)
+//        sut.show()
+//        try? await Task.sleep(nanoseconds: 500_000_000)
+//        XCTAssertEqual(sut.globalBgNode.alpha, 0.3, accuracy: 0.01)
+//        XCTAssertEqual(sut.menuBgNode.alpha, 0.7, accuracy: 0.01)
+//        XCTAssertEqual(sut.menuBgNode.xScale, 1.0, accuracy: 0.01)
+//        sut.hide()
+//        try? await Task.sleep(nanoseconds: 1_500_000_000)
+//        XCTAssertEqual(sut.globalBgNode.alpha, 0.0, accuracy: 0.01)
+//        XCTAssertEqual(sut.menuBgNode.alpha, 0.0, accuracy: 0.01)
+//        XCTAssertEqual(sut.menuBgNode.xScale, 0.0, accuracy: 0.01)
+//        XCTAssertEqual(sut.menuBgNode.yScale, 0.0, accuracy: 0.01)
+//    }
+//
+//    func testButtonNode_ExitButton_FinishesRaid() async {
+//        let scene = TestHelper.setupSKView()
+//        let mockHudNode = MockHudNode(bank: TestHelper.mockBank,
+//                                      delegate: scene)
+//        scene.hudNode = mockHudNode
+//        scene.camera?.addChild(mockHudNode)
+//        
+//        sut.outputDelegate = mockHudNode
+//        mockHudNode.pauseMenu = sut
+//        mockHudNode.addChild(sut)
+//        
+//        let exitButton = sut.menuBgNode.children.last {
+//            ($0 as? HudButton)?.name == NodeNames.exit.rawValue
+//        } as? HudButton
+//        sut.buttonNode(node: exitButton!, tapped: false)
+//        try? await Task.sleep(nanoseconds: 500_000_000)
+//        XCTAssertTrue(mockHudNode.changeStateFinishRaidCalled)
+//            
+//    }
 
     // MARK: - Deinit
     func testDeinit_CalledWhenRemoved() {

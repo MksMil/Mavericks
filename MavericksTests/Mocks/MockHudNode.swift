@@ -17,8 +17,7 @@ class MockHudNode: HudNode {
     init(bank: RaidDataSource,
          delegate: RaidScene) {
         super.init(withCameraSize: .zero,
-                   bank: bank,
-                   outputDelegate: delegate)
+                   bank: bank)
     }
     
     required init?(coder aDecoder: NSCoder) {
