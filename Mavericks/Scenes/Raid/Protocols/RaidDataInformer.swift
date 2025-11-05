@@ -2,7 +2,7 @@ import Foundation
 //hud process
 protocol RaidDataInformer: AnyObject {
 //    var controlInputDelegate: ControlInputDelegate? {get set}
-//    var outputDelegate: RaidScene? {get set}
+    var outputDelegate: RaidScene? {get set}
     var pauseMenu: PauseMenuNode {get set}
     
     func showMenu(inPosition: CGPoint)
@@ -12,5 +12,5 @@ protocol RaidDataInformer: AnyObject {
     func showPauseMenu()
     func hidePauseMenu()
     
-    func changeState(newState: HudState)
+//    func changeState(newState: HudState)
 }

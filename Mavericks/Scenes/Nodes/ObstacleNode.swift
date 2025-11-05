@@ -10,7 +10,7 @@ class ObstacleNode: SKSpriteNode{
     func setup(texture: SKTexture,size: CGSize,def: SKTileDefinition){
         self.texture = texture
         self.size = size
-        self.name = NodeNames.bg.rawValue
+//        self.name = NodeNames.bg.rawValue
         zPosition = 20
         var isWall = false
         if def.userData?["isWall"] as? Int == 1 {

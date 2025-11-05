@@ -77,7 +77,7 @@ final class HudNodeTests: XCTestCase {
     
     // MARK: - State Change
     func testChangeState_Pause_ShowsMenu() async {
-        hud.changeState(newState: .pause)
+        hud.showPauseMenu()
         try? await Task.sleep(nanoseconds: 500_000_000)
         let menu = hud.pauseMenu
         XCTAssertEqual(menu.globalBgNode.alpha, 0.3, accuracy: 0.01)
@@ -88,11 +88,11 @@ final class HudNodeTests: XCTestCase {
         let hud = HudNode(withCameraSize: scene.size,
                           bank: TestHelper.mockBank)
         scene.cameraNode.addChild(hud)
-        hud.changeState(newState: .pause)  // Сначала показываем
+        hud.showPauseMenu() // Сначала показываем
                 
         try? await Task.sleep(nanoseconds: 1000_000_000)
         
-        hud.changeState(newState: .run)
+        hud.hidePauseMenu()
         
         try? await Task.sleep(nanoseconds: 1000_000_000)
         

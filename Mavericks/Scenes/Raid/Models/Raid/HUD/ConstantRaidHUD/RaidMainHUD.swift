@@ -25,17 +25,18 @@ class RaidMainHUD: SKNode {
     
     func setup(){
         zPosition = 100
-       
-        let pauseButton = HudButton()
         
-        pauseButton.setup(withName: "pause",
-                          size: CGSize(width: 50, height: 50),
-                          position: CGPoint(x: camSize.width / 2,
-                                            y: camSize.height - 30))
+        let pauseButton = HudButton(
+            type: .hud,
+            texture: SKTexture(imageNamed: "pause"),
+            position: CGPoint(x: camSize.width / 2,
+                              y: camSize.height - 30))
+        
+        pauseButton.size = CGSize(width: 50, height: 50)
         pauseButton.name = NodeNames.pause.rawValue
         print(frame)
         print(pauseButton.position)
         addChild(pauseButton)
-
+        
     }
 }

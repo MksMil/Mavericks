@@ -1,11 +1,3 @@
-//
-//  MainRouterIntegrationTests.swift
-//  Mavericks
-//
-//  Created by Миляев Максим on 04.11.2025.
-//
-
-
 import XCTest
 import SpriteKit
 import SwiftUI
@@ -31,12 +23,10 @@ final class MainRouterIntegrationTests: XCTestCase {
         )
         window.makeKeyAndOrderFront(nil)
         
-        // Создаём RootSKView
         rootView = RootSKView()
         rootView.frame = window.contentView!.bounds
         window.contentView!.addSubview(rootView)
-        
-        // Создаём MainRouter
+
         router = MainRouter()
         router.renderDelegate = rootView
         rootView.router = router
@@ -56,21 +46,21 @@ final class MainRouterIntegrationTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 1200_000_000)  //
         
         XCTAssertTrue(rootView.scene is HomeScene)
-//        XCTAssertTrue(router.activeScene is HomeScene)
+        XCTAssertTrue(router.activeScene is HomeScene)
     }
     
     func testPresentRaid_ReplacesScene() async {
-        // Сначала Home
+        // Home
         router.presentScene(.home)
         try? await Task.sleep(nanoseconds: 1300_000_000)
         let homeScene = rootView.scene
         
-        // Затем Raid
+        // Raid
         router.presentScene(.raidScene)
         try? await Task.sleep(nanoseconds: 1300_000_000)
         
         XCTAssertTrue(rootView.scene is RaidScene)
-//        XCTAssertTrue(router.activeScene is RaidScene)
+        XCTAssertTrue(router.activeScene is RaidScene)
         XCTAssertNil(homeScene?.parent)  // Старая сцена удалена
     }
     
@@ -94,7 +84,7 @@ final class MainRouterIntegrationTests: XCTestCase {
         router.presentScene(.home)
         try? await Task.sleep(nanoseconds: 1100_000_000)
         
-        // THEN: старые сцены должны быть deinit
+        // THEN: deinit
         XCTAssertTrue(rootView.scene is HomeScene)
         XCTAssertNil(weakRaidScene)
     }
@@ -109,7 +99,7 @@ final class MainRouterIntegrationTests: XCTestCase {
         
         weak var weakRouter = localRouter
         weak var weakView = localView
-//        weak var weakScene = localRouter?.activeScene
+        weak var weakScene = localRouter?.activeScene
         
         localRouter?.presentScene(.home)
         try? await Task.sleep(nanoseconds: 100_000_000)
@@ -121,6 +111,6 @@ final class MainRouterIntegrationTests: XCTestCase {
         
         XCTAssertNil(weakRouter)
         XCTAssertNil(weakView)
-//        XCTAssertNil(weakScene)
+        XCTAssertNil(weakScene)
     }
 }

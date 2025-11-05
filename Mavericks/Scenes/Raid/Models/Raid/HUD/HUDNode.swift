@@ -4,16 +4,15 @@ import Foundation
 
 //all child nodes must have show() hide() with animations
 
-enum HudState {
-    case pause, run, finishRaid
-}
+//enum HudState {
+//    case pause, run, finishRaid
+//}
 
 class HudNode: SKNode, RaidDataInformer{
-//    weak var outputDelegate: RaidScene?
+    weak var outputDelegate: RaidScene?
     
     let bank: RaidDataSource
 //    weak var controlInputDelegate: ControlInputDelegate?
-//    var state: HudState = .run
     
     var mainHUD: RaidMainHUD
     //protocol !
@@ -49,7 +48,6 @@ class HudNode: SKNode, RaidDataInformer{
          bank: RaidDataSource) {
         self.size = size
         self.bank = bank
-//        self.outputDelegate = outputDelegate
         
         towerMenu = TowersMenuNode(iconSize: CGSize(width: 64,
                                                     height: 64),
@@ -74,42 +72,34 @@ class HudNode: SKNode, RaidDataInformer{
     deinit {
         print("hud deinit")
     }
-//    func setupStateMachine(){
-//        //changes controlInputDelegate and visual state
-//        stateMachine = GKStateMachine(states: [])
+    
+//    func changeState(newState: HudState){
+////        self.state = newState
+//        switch newState {
+//            case .pause:
+////                controlInputDelegate = pauseMenu
+////                outputDelegate?.changeState(newState: .pauseMenu)
+//                showPauseMenu()
+//            case .run:
+////                outputDelegate?.changeState(newState: .raid)
+//                hidePauseMenu()
+//                print("runned")
+//            case .finishRaid:
+//                print("hud finished")
+//                hidePauseMenu()
+////                pauseMenu.outputDelegate = nil
+////                outputDelegate?.changeState(newState: .finish)
+//           @unknown default: break
+//        }
 //    }
     
-    func changeState(newState: HudState){
-//        self.state = newState
-        switch newState {
-            case .pause:
-//                controlInputDelegate = pauseMenu
-//                outputDelegate?.changeState(newState: .pauseMenu)
-                showPauseMenu()
-            case .run:
-//                outputDelegate?.changeState(newState: .raid)
-                hidePauseMenu()
-                print("runned")
-            case .finishRaid:
-                print("hud finished")
-                hidePauseMenu()
-//                pauseMenu.outputDelegate = nil
-//                outputDelegate?.changeState(newState: .finish)
-           @unknown default: break
-        }
-    }
-    
     func showMenu(inPosition: CGPoint) {
-//        towerMenu.position = inPosition
-//        print("menu showed in position: \(inPosition)")
-//        print(size)
-//        print(towerMenu.debugDescription)
-//        addChild(towerMenu)
-        
+        towerMenu.position = inPosition
+        addChild(towerMenu)
     }
     
     func hideMenu() {
-//        towerMenu.removeFromParent()
+        towerMenu.removeFromParent()
     }
     /*
         pause / menu settings
@@ -120,11 +110,9 @@ class HudNode: SKNode, RaidDataInformer{
     
     func setup(){
         zPosition = 100
-        let pauseButton = HudButton()
-        pauseButton.setup(withName: "pause",
-                          size: CGSize(width: 50, height: 50),
-                          position: CGPoint(x: size.width / 2,
-                                            y: size.height - 30))
+        let pauseButton = HudButton(type: .hud, texture: SKTexture(imageNamed: "pause"))
+        pauseButton.position = CGPoint(x: size.width / 2,
+                                            y: size.height - 30)
         pauseButton.name = NodeNames.pause.rawValue
         addChild(pauseButton)
     }
@@ -136,7 +124,6 @@ class HudNode: SKNode, RaidDataInformer{
     }
     func hidePauseMenu(){
         pauseMenu.hide()
-//        controlInputDelegate = nil
     }
     
     func showInfo(contentOwner: any Informable) {

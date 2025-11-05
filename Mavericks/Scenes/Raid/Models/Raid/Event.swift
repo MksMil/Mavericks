@@ -1,12 +1,12 @@
 import GameplayKit
 // Типы событий
-enum EventType {
+enum RaidEventType {
     case blockPlaced
     case blockRemoved
 }
 
 // Структура события
-struct Event {
-    let type: EventType
+struct RaidEvent {
+    let type: RaidEventType
     let position: vector_int2
 }

@@ -23,17 +23,17 @@ class TowersMenuNode: SKNode {
         //TODO: availlable towers from player info, make a single node aka TowerMenuNode, with inputDelegate
         //add some bg
         
-        let arrowNode = HudButton(texture: towerTextures[0])
+        let arrowNode = HudButton(type: .hud, texture: towerTextures[0])
         arrowNode.name = NodeNames.arrow.rawValue
-        let poisonwNode = HudButton(texture: towerTextures[1])
+        let poisonwNode = HudButton(type: .hud, texture: towerTextures[1])
         poisonwNode.name = NodeNames.poison.rawValue
-        let fireNode = HudButton(texture: towerTextures[2])
+        let fireNode = HudButton(type: .hud, texture: towerTextures[2])
         fireNode.name = NodeNames.fire.rawValue
-        let frostNode = HudButton(texture: towerTextures[3])
+        let frostNode = HudButton(type: .hud, texture: towerTextures[3])
         frostNode.name = NodeNames.frost.rawValue
-        let electroNode = HudButton(texture: towerTextures[4])
+        let electroNode = HudButton(type: .hud, texture: towerTextures[4])
         electroNode.name = NodeNames.electro.rawValue
-        let stunNode = HudButton(texture: towerTextures[5])
+        let stunNode = HudButton(type: .hud, texture: towerTextures[5])
         stunNode.name = NodeNames.stun.rawValue
         
         let r = arrowNode.size.width

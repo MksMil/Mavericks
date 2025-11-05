@@ -8,7 +8,7 @@ import GameplayKit
 
 
 enum SceneState {
-    case pauseMenu, raid, initial, towerMenu, towerUpgrade,blockMenu,blockUpgrade, questMenu,finish, heroSelected, monsterSelected
+    case paused, run, initial,finished//, towerBuild, towerUpgrade,blockBuild,blockUpgrade, questMenu,finish, heroSelected, monsterSelected
 }
 
 class RaidScene: SKScene, RootScene {
@@ -22,6 +22,7 @@ class RaidScene: SKScene, RootScene {
         super.init(size: size)
     }
     weak var mainViewDelegate: MainViewDelegateProtocol?
+    
     var field: Field?
     
     weak var bank: RaidDataSource?
@@ -60,20 +61,6 @@ class RaidScene: SKScene, RootScene {
         setupHUD()
     }
     
-    func prepareToRemove(){
-        print("prepare to remove raid")
-        field?.fieldNode.removeAllActions()
-        field?.fieldNode.removeAllChildren()
-        field?.fieldNode.removeFromParent()
-        field = nil
-        cameraNode.removeAllActions()
-        cameraNode.removeAllChildren()
-        cameraNode.removeFromParent()
-        hudNode = nil //!
-        removeAllChildren()
-        removeAllActions()
-        camera = nil
-    }
     deinit{
         print("raid scene deinit")
     }
@@ -85,40 +72,26 @@ extension RaidScene {
         state = newState
 
         switch newState {
-            case .pauseMenu:
+            case .paused:
                 //controlInputDelegate = hud
                 //field - > pause
                 //hud -> pause
                 //state = newState
                 field?.pause()
 //                hudNode?.changeState(newState: .pause)
-            case .raid:
+            case .run:
                 field?.run()
 //                hudNode?.changeState(newState: .run)
-//            case .initial:
-//                <#code#>
-//            case .towerMenu:
-//                <#code#>
-//            case .towerUpgrade:
-//                <#code#>
-//            case .blockMenu:
-//                <#code#>
-//            case .blockUpgrade:
-//                <#code#>
-//            case .questMenu:
-//                <#code#>
-            case .finish:
+            case .initial:
+                print("initial raid state")
+
+            case .finished:
                 // animation
                 // data transfer
-                prepareToRemove()
+                
                 mainViewDelegate?.presentScene(.home)
                 print("finish raid")
-                
-                //            case .heroSelected:
-//                <#code#>
-//            case .monsterSelected:
-//                <#code#>
-            default: return
+            @unknown default: return
         }
     }
 }
@@ -144,7 +117,7 @@ extension RaidScene {
     func setupHUD(){
         guard let bank else { return }
         hudNode = HudNode(withCameraSize: view?.frame.size ?? .zero,bank: bank)
-        
+        hudNode?.outputDelegate = self
         guard let hudNode  = hudNode as? SKNode else {
             print("can't load hud, unexpected behavior in setupHUD")
             return
@@ -159,15 +132,15 @@ extension RaidScene {
                     switch self.state {
                         case .initial:
                             self.field?.start()
-                            self.state = .raid
-                        case .pauseMenu:
+                            self.state = .run
+                        case .paused:
                             print("unpause")
-                            self.state = .raid
+                            self.state = .run
                             field?.fieldNode.isPaused = false
                             hudNode?.hidePauseMenu()
-                        case .raid:
+                        case .run:
                             print("pause")
-                            changeState(newState: .pauseMenu)
+                            changeState(newState: .paused)
 //                            hudNode?.showPauseMenu()
 //                        case .towerMenu:
 //                            break
@@ -192,37 +165,37 @@ extension RaidScene {
                     guard let selectedCell else { return }
                     field?.addTower(TowerType.arrow, toCell: selectedCell)
                     hudNode?.hideMenu()
-                    state = .raid
+                    state = .run
                 case NodeNames.poison.rawValue:
                     print("poison tower")
                     guard let selectedCell else { return }
                     field?.addTower(TowerType.poison, toCell: selectedCell)
                     hudNode?.hideMenu()
-                    state = .raid
+                    state = .run
                 case NodeNames.fire.rawValue:
                     print("fire tower")
                     guard let selectedCell else { return }
                     field?.addTower(TowerType.fire, toCell: selectedCell)
                     hudNode?.hideMenu()
-                    state = .raid
+                    state = .run
                 case NodeNames.frost.rawValue:
                     print("fire tower")
                     guard let selectedCell else { return }
                     field?.addTower(TowerType.freeze, toCell: selectedCell)
                     hudNode?.hideMenu()
-                    state = .raid
+                    state = .run
                 case NodeNames.electro.rawValue:
                     print("electro tower")
                     guard let selectedCell else { return }
                     field?.addTower(TowerType.electric, toCell: selectedCell)
                     hudNode?.hideMenu()
-                    state = .raid
+                    state = .run
                 case NodeNames.stun.rawValue:
                     print("stun tower")
                     guard let selectedCell else { return }
                     field?.addTower(TowerType.stun, toCell: selectedCell)
                     hudNode?.hideMenu()
-                    state = .raid
+                    state = .run
                     
                 default: break
             }
@@ -248,7 +221,7 @@ extension RaidScene {
                 selectedCell = cell
                 if let node = hudNode as? SKNode{
                   let pos = event.location(in: node)
-                    state = .towerMenu
+//                    state = .towerBuild
                     hudNode?.showMenu(inPosition: pos)
                 }
 //                field.addTowerToCell(cell)
@@ -267,26 +240,119 @@ extension RaidScene {
         @unknown default: print("unknown cell tapped")
         }
     }
+#if os(iOS)
+    func processLocation(with event: UIEvent){
+//        if let tappedNode = nodes(at: location).first,
+//           let tappedName = tappedNode.name{
+//            switch tappedName{
+//                case NodeNames.startButton.rawValue:
+//                    print("start tapped")
+//                case NodeNames.pause.rawValue:
+//                    print("pause tapped")
+//                case NodeNames.road.rawValue:
+//                    print("road tapped")
+//                case NodeNames.field.rawValue:
+//                    print("field tapped")
+//                default: return
+////                    controlInputDelegate = self
+//            }
+//        } else {
+////            controlInputDelegate = self
+//        }
+    }
+
     
-    func processLocation(_ location: CGPoint){
-        if let tappedNode = nodes(at: location).first,
+#elseif os(macOS)
+    func processEvent(_ event: NSEvent, tapEnd: Bool){
+        
+        let location = event.location(in: self)
+        if let tappedNode = nodes(at: location).first as? BaseRaidNode,
            let tappedName = tappedNode.name{
-            switch tappedName{
-                case NodeNames.startButton.rawValue:
-                    print("start tapped")
-                case NodeNames.pause.rawValue:
-                    print("pause tapped")
-                case NodeNames.road.rawValue:
-                    print("road tapped")
-                case NodeNames.field.rawValue:
-                    print("field tapped")
-                default: return
-//                    controlInputDelegate = self
+            if !tapEnd{
+                if tappedNode.type == .hud, let buttonNode = tappedNode as? HudButton {
+                    buttonNode.changeStateToTapped(true)
+                }
+            }else {
+                //            paused, run, initial,finished
+                switch state {
+                        
+                    case .initial:
+                        switch tappedNode.type {
+                            case .base:
+                                print("base tapped")
+                            case .hud:
+                                if let buttonNode = tappedNode as? HudButton{
+                                    if buttonNode.name == NodeNames.pause.rawValue{
+                                        buttonNode.changeStateToTapped(false) {[weak self] in
+                                            guard let self else { return }
+                                            self.field?.start()
+                                            self.state = .run
+                                        }
+                                    }
+                                }
+                            default: return
+                        }
+                        
+                        
+                    case .run:
+                        switch tappedNode.type {
+                            case .base:
+                                print("base tapped")
+                            case .hud:
+                                if tappedName == NodeNames.pause.rawValue{
+                                    hudNode?.showPauseMenu()
+                                    field?.pause()
+                                    state = .paused
+                                }
+                                
+                            default: return
+                        }
+                        
+                    case .paused:
+                        switch tappedNode.type {
+                            case .hud:
+                                if let buttonNode = tappedNode as? HudButton{
+                                    if buttonNode.name == NodeNames.resume.rawValue{
+                                        buttonNode.changeStateToTapped(false) {[weak self] in
+                                            guard let self else { return }
+                                            self.hudNode?.hidePauseMenu()
+                                            self.field?.run()
+                                            self.state = .run
+                                        }
+                                    }
+                                }
+                            default: return
+                        }
+                        
+                    case .finished:
+                        print("finished")
+                        //                default: return
+                }
+                //            switch tappedName{
+                //                case NodeNames.startButton.rawValue:
+                //                    print("start tapped")
+                //                case NodeNames.pause.rawValue:
+                //                    print("pause tapped")
+                //                case NodeNames.road.rawValue:
+                //                    print("road tapped")
+                //                case NodeNames.field.rawValue:
+                //                    print("field tapped")
+                //                default: return
+                ////                    controlInputDelegate = self
+                //            }
             }
         } else {
-//            controlInputDelegate = self
+            ////            controlInputDelegate = self
         }
     }
+#endif
+    
+    // MARK: outputDelegate
+    func processRaidEvent(raidEvent: RaidEvent){
+        
+    }
+    
+    
 }
 
 // MARK: - Control Input Delegate
@@ -303,9 +369,10 @@ extension RaidScene: ControlInputDelegate {
     #if os(macOS)
     func handleMouseUp(with event: NSEvent) {
 //        controlInputDelegate?.handleMouseUp(with: event)
+        processEvent(event,tapEnd: true)
     }
     func handleMouseDown(with event: NSEvent) {
-        let location = event.location(in: self)
+        processEvent(event,tapEnd: false)
         //node type -> change state with nodes value
         // hud -> pause / settings / abilities
         // empty cell -> tower/block
@@ -318,61 +385,61 @@ extension RaidScene: ControlInputDelegate {
         
         // define delegate for node.name / type
 
-        switch state {
-            case .pauseMenu:
-//                controlInputDelegate = hudNode?.controlInputDelegate
-//                controlInputDelegate?.handleMouseDown(with: event)
-                return
-            case .raid:
-                if let tappedNode = nodes(at: location).first as? HudButton{
-                    handleHudEvent(withNode: tappedNode)
-                    return
-                }
-                do{
-                    if let cell = try field?.fieldPieceInLocation(location){
-                        handleEventForCell(cell, event: event)
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            case .initial:
-                if let tappedNode = nodes(at: location).first as? HudButton{
-                    handleHudEvent(withNode: tappedNode)
-                    return
-                }
-                do{
-                    if let cell = try field?.fieldPieceInLocation(location){
-                        handleEventForCell(cell, event: event)
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            case .towerMenu:
-                if let tappedNode = nodes(at: location).first as? HudButton{
-                    handleHudEvent(withNode: tappedNode)
-                    print("towerMenu tapped")
-                    return
-                } else {
-                    hudNode?.hideMenu()
-                    state = .raid
-                    return
-                }
-//            case .blockMenu:
+//        switch state {
+//            case .paused:
+////                controlInputDelegate = hudNode?.controlInputDelegate
+////                controlInputDelegate?.handleMouseDown(with: event)
 //                return
-//            case .questMenu:
-//                return
-//            case .towerUpgrade:
-//                <#code#>
-//            case .blockUpgrade:
-//                <#code#>
-//            case .finish:
-//                <#code#>
-//            case .heroSelected:
-//                <#code#>
-//            case .monsterSelected:
-//                <#code#>
-            default: return
-        }
+//            case .run:
+//                if let tappedNode = nodes(at: location).first as? HudButton{
+//                    handleHudEvent(withNode: tappedNode)
+//                    return
+//                }
+//                do{
+//                    if let cell = try field?.fieldPieceInLocation(location){
+//                        handleEventForCell(cell, event: event)
+//                    }
+//                } catch {
+//                    print(error.localizedDescription)
+//                }
+//            case .initial:
+//                if let tappedNode = nodes(at: location).first as? HudButton{
+//                    handleHudEvent(withNode: tappedNode)
+//                    return
+//                }
+//                do{
+//                    if let cell = try field?.fieldPieceInLocation(location){
+//                        handleEventForCell(cell, event: event)
+//                    }
+//                } catch {
+//                    print(error.localizedDescription)
+//                }
+////            case .towerBuild:
+////                if let tappedNode = nodes(at: location).first as? HudButton{
+////                    handleHudEvent(withNode: tappedNode)
+////                    print("towerMenu tapped")
+////                    return
+////                } else {
+////                    hudNode?.hideMenu()
+////                    state = .raid
+////                    return
+////                }
+////            case .blockMenu:
+////                return
+////            case .questMenu:
+////                return
+////            case .towerUpgrade:
+////                <#code#>
+////            case .blockUpgrade:
+////                <#code#>
+////            case .finish:
+////                <#code#>
+////            case .heroSelected:
+////                <#code#>
+////            case .monsterSelected:
+////                <#code#>
+//            default: return
+//        }
     }
     
     func handleScrollWheel(with event: NSEvent) {

@@ -1,0 +1,39 @@
+{
+  "configurations" : [
+    {
+      "id" : "5EAC203E-AB9A-49B7-9C38-A14D62DF3947",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Mavericks.xcodeproj",
+      "identifier" : "2951B1592E0AD0710087B13F",
+      "name" : "Mavericks"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Mavericks.xcodeproj",
+        "identifier" : "2951B1672E0AD0740087B13F",
+        "name" : "MavericksTests"
+      }
+    },
+    {
+      "enabled" : false,
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Mavericks.xcodeproj",
+        "identifier" : "2951B1712E0AD0740087B13F",
+        "name" : "MavericksUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

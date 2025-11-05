@@ -29,7 +29,7 @@ final class RaidSceneTests: XCTestCase {
     
     // MARK: - State Change
     func testChangeState_Pause_Pauses() async {
-        scene.changeState(newState: .pauseMenu)
+        scene.changeState(newState: .paused)
         try? await Task.sleep(nanoseconds: 500_000_000)
         let field = scene.field?.fieldNode
         XCTAssertNotNil(field)
@@ -39,8 +39,8 @@ final class RaidSceneTests: XCTestCase {
     }
     
     func testChangeState_Run_UnPauses() async {
-        scene.changeState(newState: .pauseMenu)
-        scene.changeState(newState: .raid)
+        scene.changeState(newState: .paused)
+        scene.changeState(newState: .run)
         try? await Task.sleep(nanoseconds: 1000_000_000)
         let field = scene.field?.fieldNode
         XCTAssertNotNil(field)
@@ -51,7 +51,7 @@ final class RaidSceneTests: XCTestCase {
     
     // MARK: - Present Scene
     func testChangeState_Finish_CallsPresentHome() {
-        scene.changeState(newState: .finish)
+        scene.changeState(newState: .finished)
         
 //        XCTAssertTrue(mockDelegate.presentHomeCalled)
     }

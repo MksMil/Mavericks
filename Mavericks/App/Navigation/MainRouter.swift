@@ -4,7 +4,7 @@ import SpriteKit
 
 final class MainRouter: ObservableObject, MainViewDelegateProtocol{
     
-//    weak var activeScene: RootScene?
+    weak var activeScene: RootScene?
 
     var renderDelegate: RootSKView?
     weak var controlInputDelegate: ControlInputDelegate?
@@ -40,6 +40,7 @@ extension MainRouter{
         let newScene = loadScene(name: scene)
         newScene.mainViewDelegate = self
         controlInputDelegate = newScene
+        activeScene = newScene
         renderDelegate?.loadScene(scene: newScene)
         
     }

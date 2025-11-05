@@ -50,7 +50,8 @@ extension PauseMenuNode {
     func setupButtons(){
         let menuTextures = bank.pauseMenuTextures
         for i in 0 ..< menuTextures.count{
-            let buttonNode = HudButton(texture: menuTextures[i])
+            let buttonNode = HudButton(type: .hud,
+                                       texture: menuTextures[i])
             buttonNode.isUserInteractionEnabled = false
             switch i {
                 case 0:
@@ -63,7 +64,7 @@ extension PauseMenuNode {
                     buttonNode.name = NodeNames.exit.rawValue
                     
                 default:
-                    buttonNode.name = NodeNames.empty.rawValue
+                    buttonNode.name = ""
             }
             menuBgNode.addChild(buttonNode)
             buttonNode.position = CGPoint(x: 0,
