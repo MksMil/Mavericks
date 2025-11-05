@@ -8,7 +8,7 @@ import GameplayKit
 
 
 enum SceneState {
-    case paused, run, initial,finished//, towerBuild, towerUpgrade,blockBuild,blockUpgrade, questMenu,finish, heroSelected, monsterSelected
+    case paused, run, initial,finished, towerBuild, towerUpgrade,blockBuild,blockUpgrade, questMenu, heroSelected, monsterSelected
 }
 
 class RaidScene: SKScene, RootScene {
@@ -311,15 +311,14 @@ extension RaidScene {
                             
                             
                         case .run:
-                            
                             switch tappedNode.type {
                                 case .field:
                                     print("field tapped")
-                                    selectedCell = try? field?.cellInLocation(location)
-                                    hudNode?.showMenu(inPosition: convert(tappedNode.position,
-                                                                          to: hudNode as! SKNode))
                                     // -> selectedCell
                                     // hud -> show towerbuildmenu
+                                    selectedCell = try? field?.cellInLocation(location)
+                                    state = .towerBuild
+                                    hudNode?.showMenu(inPosition: convert(tappedNode.position,to: hudNode as! SKNode))
                                 case .base:
                                     print("base tapped")
                                 case .hud:
@@ -334,14 +333,6 @@ extension RaidScene {
                                                 self.state = .paused
                                             }
                                         }
-                                        if let name = buttonNode.name,
-                                           let selectedCell,
-                                           NodeNames.towers.contains(name),
-                                           let towerName = NodeNames(rawValue: name) {
-                                            hudNode?.hideMenu()
-                                            field?.addTowerWithName(towerName, toCell: selectedCell)
-                                        }
-                                        
                                     }
                                 default:
                                     return
@@ -367,6 +358,39 @@ extension RaidScene {
                             
                         case .finished:
                             print("finished")
+                        case .towerBuild:
+                            print("towerBuild")
+                            switch tappedNode.type {
+                                case .hud:
+                                    if let buttonNode = tappedNode as? HudButton{
+                                        //animation?
+                                        selectedNode = nil
+                                        //pause state
+                                       
+                                        if let name = buttonNode.name,
+                                           let selectedCell,
+                                           NodeNames.towers.contains(name),
+                                           let towerName = NodeNames(rawValue: name) {
+                                            hudNode?.hideMenu()
+                                            field?.addTowerWithName(towerName, toCell: selectedCell)
+                                        }
+                                    }
+                                default: break
+                            }
+                            hudNode?.hideMenu()
+                            state = .run
+                        case .towerUpgrade:
+                            print("towerUpgrade")
+                        case .blockBuild:
+                            print("blockBuild")
+                        case .blockUpgrade:
+                            print("blockUpgrade")
+                        case .questMenu:
+                            print("quest")
+                        case .heroSelected:
+                            print("hero")
+                        case .monsterSelected:
+                            print("monster")
                     }
                 }
             }
