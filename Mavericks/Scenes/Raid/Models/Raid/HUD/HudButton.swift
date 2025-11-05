@@ -5,6 +5,7 @@ class HudButton: BaseRaidNode{
     
     func changeStateToTapped(_ tapped: Bool,
                              completion: (()->())? = nil){
+        removeAllActions()
         run(SKAction.scale(to: tapped ? 1.1:1.0, duration: 0.1)){
             completion?()
         }

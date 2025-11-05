@@ -23,10 +23,14 @@ enum BaseRaidNodeType {
 
 class BaseRaidNode: SKSpriteNode {
     let type: BaseRaidNodeType
-    init(type: BaseRaidNodeType, texture: SKTexture? = nil, color: NSColor = .clear, size: CGSize) {
-            self.type = type
-            super.init(texture: texture, color: color, size: size)
+    init(type: BaseRaidNodeType, texture: SKTexture? = nil, color: NSColor = .clear, size: CGSize = .zero) {
+        self.type = type
+        var newsize = size
+        if let texture {
+            newsize = texture.size()
         }
+        super.init(texture: texture, color: color, size: newsize)
+    }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

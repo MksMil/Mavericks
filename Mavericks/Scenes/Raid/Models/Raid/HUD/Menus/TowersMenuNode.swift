@@ -67,10 +67,6 @@ class TowersMenuNode: SKNode {
         addChild(electroNode)
         addChild(stunNode)
 
-        setScale(1 / 2)
-    }
-    
-    override func mouseDown(with event: NSEvent) {
-        print("menu node tapped")
+        setScale( 1 / 2 )
     }
 }

@@ -21,3 +21,14 @@ enum NodeNames: String{
     
     case monster
 }
+
+extension NodeNames {
+    static let towers: [String] = [
+        NodeNames.arrow,
+        NodeNames.poison,
+        NodeNames.fire,
+        NodeNames.frost,
+        NodeNames.electro,
+        NodeNames.stun,
+    ].map{$0.rawValue}
+}

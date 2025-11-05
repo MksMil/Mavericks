@@ -94,6 +94,8 @@ class HudNode: SKNode, RaidDataInformer{
 //    }
     
     func showMenu(inPosition: CGPoint) {
+        print("tower menu showed: \(inPosition)")
+        
         towerMenu.position = inPosition
         addChild(towerMenu)
     }

@@ -205,11 +205,13 @@ extension Field {
                 let cell = grid[y][x]
                 var sprite:SKSpriteNode
                 if cell.type == .field{
-                    sprite = SKSpriteNode(texture: textureBank.fieldTextures.randomElement())
+                    sprite = BaseRaidNode(type: .field,
+                                          texture: textureBank.fieldTextures.randomElement())
                     sprite.size = CGSize(width: cellSize,
                                          height: cellSize)
                 } else if cell.type == .road {
-                    sprite = SKSpriteNode(texture: textureBank.roadTextures.randomElement())
+                    sprite = BaseRaidNode(type: .road,
+                                          texture: textureBank.roadTextures.randomElement())
                     sprite.size = CGSize(width: cellSize,
                                          height: cellSize)
                 } else {
@@ -259,16 +261,7 @@ extension Field {
 
 // MARK: - checks
 extension Field {
-    func fieldPieceInLocation(_ location: CGPoint) throws -> GridCell {
-        let gridPos = convertToGridPosition(cgPoint: location,
-                                            pathGraph: pathGraph )
-        print("tapped at pos: \(gridPos)")
-        guard gridPos.x >= 0, gridPos.x < Int32(gridWidth), gridPos.y >= 0, gridPos.y < Int32(gridHeight) else {
-            print("Invalid grid position: \(gridPos)")
-            throw MavRaidError.invalidLocation
-        }
-        return grid[Int(gridPos.y)][Int(gridPos.x)]
-    }
+    
 }
 
 // MARK: - Block
@@ -346,7 +339,31 @@ extension Field {
 
 // MARK: - Towers
 extension Field {
-    func addTower(_ tower: TowerType,toCell cell: GridCell){
+    func addTowerWithName(_ name: NodeNames,
+                          toCell cell: GridCell){
+        var type: TowerType?
+        switch name {
+            case .arrow:
+                type = .arrow
+            case .poison:
+                type = .poison
+            case .fire:
+                type = .fire
+            case .frost:
+                type = .freeze
+            case .electro:
+                type = .electric
+            case .stun:
+                type = .stun
+            default: return
+        }
+        if let type {
+            addTower(type, toCell: cell)
+        }
+    }
+    
+    func addTower(_ tower: TowerType,
+                  toCell cell: GridCell){
         guard let textureBank else {
             print("texture bank doesn't exists")
             return
@@ -388,6 +405,17 @@ extension Field {
 
 // MARK: - Helpers
 extension Field {
+    func cellInLocation(_ location: CGPoint) throws -> GridCell {
+        let gridPos = convertToGridPosition(cgPoint: location,
+                                            pathGraph: pathGraph )
+        print("tapped at pos: \(gridPos)")
+        guard gridPos.x >= 0, gridPos.x < Int32(gridWidth),
+                gridPos.y >= 0, gridPos.y < Int32(gridHeight) else {
+            print("Invalid grid position: \(gridPos)")
+            throw MavRaidError.invalidLocation
+        }
+        return grid[Int(gridPos.y)][Int(gridPos.x)]
+    }
     //vector_int2 -> GridCell
     func cellInGridPosition(_ position: vector_int2) -> GridCell{
         grid[Int(position.y)][Int(position.x)]

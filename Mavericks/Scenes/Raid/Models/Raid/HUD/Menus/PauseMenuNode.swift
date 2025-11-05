@@ -4,7 +4,7 @@ class PauseMenuNode: SKNode{
     let bank: RaidDataSource
     let sceneSize: CGSize
     
-    let globalBgNode: SKSpriteNode
+    let globalBgNode: BaseRaidNode
     let menuBgNode: SKSpriteNode
     
     let tapAction: SKAction = SKAction.scale(to: 1.1, duration: 0.1)
@@ -13,9 +13,11 @@ class PauseMenuNode: SKNode{
     init(sceneSize: CGSize,bank: RaidDataSource) {
         self.sceneSize = sceneSize
         self.bank = bank
-        self.globalBgNode = SKSpriteNode(color: NSColor.black,
+        self.globalBgNode = BaseRaidNode(type: .hud,
+                                         color: NSColor.black,
                                          size: sceneSize)
-        self.menuBgNode = SKSpriteNode(color: NSColor.white,
+        self.menuBgNode = BaseRaidNode(type: .hud,
+                                       color: NSColor.white,
                                        size: CGSize(width: 200,
                                                     height: 300))
         super.init()

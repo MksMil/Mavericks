@@ -28,6 +28,7 @@ class RaidScene: SKScene, RootScene {
     weak var bank: RaidDataSource?
     var state: SceneState = .initial
     var selectedCell: GridCell?
+    var selectedNode: HudButton?
     
     var cameraNode = SKCameraNode()
     var hudNode: RaidDataInformer?
@@ -264,85 +265,111 @@ extension RaidScene {
     
 #elseif os(macOS)
     func processEvent(_ event: NSEvent, tapEnd: Bool){
-        
         let location = event.location(in: self)
-        if let tappedNode = nodes(at: location).first as? BaseRaidNode,
-           let tappedName = tappedNode.name{
+        if let tappedNode = nodes(at: location).first as? BaseRaidNode{
             if !tapEnd{
-                if tappedNode.type == .hud, let buttonNode = tappedNode as? HudButton {
+                print("touch down")
+                //mouse down
+                if tappedNode.type == .hud,
+                    let buttonNode = tappedNode as? HudButton {
+                    selectedNode = buttonNode
                     buttonNode.changeStateToTapped(true)
                 }
-            }else {
-                //            paused, run, initial,finished
-                switch state {
-                        
-                    case .initial:
-                        switch tappedNode.type {
-                            case .base:
-                                print("base tapped")
-                            case .hud:
-                                if let buttonNode = tappedNode as? HudButton{
-                                    if buttonNode.name == NodeNames.pause.rawValue{
-                                        buttonNode.changeStateToTapped(false) {[weak self] in
-                                            guard let self else { return }
-                                            self.field?.start()
-                                            self.state = .run
+            } else {
+                print("touch up: tapped \(tappedNode.type)")
+                if selectedNode?.type == .hud, tappedNode != selectedNode{
+                    print("1")
+                    selectedNode?.changeStateToTapped(false)
+                } else {
+                    print("2")
+                    //mouse up
+                    //paused, run, initial,finished
+                    switch state {
+                        case .initial:
+                            switch tappedNode.type {
+                                case .field:
+                                    print("field tapped")
+                                    // -> selectedCell
+                                    // hud -> show towerbuildmenu
+                                case .base:
+                                    print("base tapped")
+                                case .hud:
+                                    if let buttonNode = tappedNode as? HudButton{
+                                        selectedNode = nil
+                                        //start temporary
+                                        if buttonNode.name == NodeNames.pause.rawValue{
+                                            buttonNode.changeStateToTapped(false) {[weak self] in
+                                                guard let self else { return }
+                                                self.field?.start()
+                                                self.state = .run
+                                            }
                                         }
                                     }
-                                }
-                            default: return
-                        }
-                        
-                        
-                    case .run:
-                        switch tappedNode.type {
-                            case .base:
-                                print("base tapped")
-                            case .hud:
-                                if tappedName == NodeNames.pause.rawValue{
-                                    hudNode?.showPauseMenu()
-                                    field?.pause()
-                                    state = .paused
-                                }
-                                
-                            default: return
-                        }
-                        
-                    case .paused:
-                        switch tappedNode.type {
-                            case .hud:
-                                if let buttonNode = tappedNode as? HudButton{
-                                    if buttonNode.name == NodeNames.resume.rawValue{
-                                        buttonNode.changeStateToTapped(false) {[weak self] in
-                                            guard let self else { return }
-                                            self.hudNode?.hidePauseMenu()
-                                            self.field?.run()
-                                            self.state = .run
+                                default:
+                                    return
+                            }
+                            
+                            
+                        case .run:
+                            
+                            switch tappedNode.type {
+                                case .field:
+                                    print("field tapped")
+                                    selectedCell = try? field?.cellInLocation(location)
+                                    hudNode?.showMenu(inPosition: convert(tappedNode.position,
+                                                                          to: hudNode as! SKNode))
+                                    // -> selectedCell
+                                    // hud -> show towerbuildmenu
+                                case .base:
+                                    print("base tapped")
+                                case .hud:
+                                    if let buttonNode = tappedNode as? HudButton{
+                                        selectedNode = nil
+                                        //pause state
+                                        if buttonNode.name == NodeNames.pause.rawValue{
+                                            buttonNode.changeStateToTapped(false) { [weak self] in
+                                                guard let self else { return }
+                                                self.hudNode?.showPauseMenu()
+                                                self.field?.pause()
+                                                self.state = .paused
+                                            }
+                                        }
+                                        if let name = buttonNode.name,
+                                           let selectedCell,
+                                           NodeNames.towers.contains(name),
+                                           let towerName = NodeNames(rawValue: name) {
+                                            hudNode?.hideMenu()
+                                            field?.addTowerWithName(towerName, toCell: selectedCell)
+                                        }
+                                        
+                                    }
+                                default:
+                                    return
+                            }
+                            
+                        case .paused:
+                            switch tappedNode.type {
+                                case .hud:
+                                    if let buttonNode = tappedNode as? HudButton{
+                                        selectedNode = nil
+                                        if buttonNode.name == NodeNames.resume.rawValue{
+                                            buttonNode.changeStateToTapped(false) {[weak self] in
+                                                guard let self else { return }
+                                                self.hudNode?.hidePauseMenu()
+                                                self.field?.run()
+                                                self.state = .run
+                                            }
                                         }
                                     }
-                                }
-                            default: return
-                        }
-                        
-                    case .finished:
-                        print("finished")
-                        //                default: return
+                                default:
+                                    return
+                            }
+                            
+                        case .finished:
+                            print("finished")
+                    }
                 }
-                //            switch tappedName{
-                //                case NodeNames.startButton.rawValue:
-                //                    print("start tapped")
-                //                case NodeNames.pause.rawValue:
-                //                    print("pause tapped")
-                //                case NodeNames.road.rawValue:
-                //                    print("road tapped")
-                //                case NodeNames.field.rawValue:
-                //                    print("field tapped")
-                //                default: return
-                ////                    controlInputDelegate = self
-                //            }
             }
-        } else {
-            ////            controlInputDelegate = self
         }
     }
 #endif
@@ -373,73 +400,7 @@ extension RaidScene: ControlInputDelegate {
     }
     func handleMouseDown(with event: NSEvent) {
         processEvent(event,tapEnd: false)
-        //node type -> change state with nodes value
-        // hud -> pause / settings / abilities
-        // empty cell -> tower/block
-        // unit -> hero / quest
-        // monster -> info
-        // tower / block -> hud menu
-        
-        //hud - visual
-        //field - game
-        
-        // define delegate for node.name / type
-
-//        switch state {
-//            case .paused:
-////                controlInputDelegate = hudNode?.controlInputDelegate
-////                controlInputDelegate?.handleMouseDown(with: event)
-//                return
-//            case .run:
-//                if let tappedNode = nodes(at: location).first as? HudButton{
-//                    handleHudEvent(withNode: tappedNode)
-//                    return
-//                }
-//                do{
-//                    if let cell = try field?.fieldPieceInLocation(location){
-//                        handleEventForCell(cell, event: event)
-//                    }
-//                } catch {
-//                    print(error.localizedDescription)
-//                }
-//            case .initial:
-//                if let tappedNode = nodes(at: location).first as? HudButton{
-//                    handleHudEvent(withNode: tappedNode)
-//                    return
-//                }
-//                do{
-//                    if let cell = try field?.fieldPieceInLocation(location){
-//                        handleEventForCell(cell, event: event)
-//                    }
-//                } catch {
-//                    print(error.localizedDescription)
-//                }
-////            case .towerBuild:
-////                if let tappedNode = nodes(at: location).first as? HudButton{
-////                    handleHudEvent(withNode: tappedNode)
-////                    print("towerMenu tapped")
-////                    return
-////                } else {
-////                    hudNode?.hideMenu()
-////                    state = .raid
-////                    return
-////                }
-////            case .blockMenu:
-////                return
-////            case .questMenu:
-////                return
-////            case .towerUpgrade:
-////                <#code#>
-////            case .blockUpgrade:
-////                <#code#>
-////            case .finish:
-////                <#code#>
-////            case .heroSelected:
-////                <#code#>
-////            case .monsterSelected:
-////                <#code#>
-//            default: return
-//        }
+ 
     }
     
     func handleScrollWheel(with event: NSEvent) {
@@ -453,10 +414,6 @@ extension RaidScene: ControlInputDelegate {
     }
     
     func handleRotate(with event: NSEvent) {}
-    
-    
-    
-    
     func handleMouseMoved(with event: NSEvent) {}
     func handlePressureChange(with event: NSEvent) {}
     func handleKeyUp(with event: NSEvent) {}
