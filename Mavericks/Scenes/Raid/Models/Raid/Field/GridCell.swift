@@ -9,27 +9,29 @@ class GridCell: GKEntity {
     let parent: Field
     let gridPosition: vector_int2
     var scenePosition: CGPoint {
-        let cellSize = 100.0
         let sceneX = CGFloat(gridPosition.x) * cellSize + cellSize / 2
         let sceneY = CGFloat(gridPosition.y) * cellSize + cellSize / 2
         return CGPoint(x: sceneX, y: sceneY)
     }
     var type: GridCellType
-    
-    var node: SKSpriteNode?
+    var cellSize: CGFloat
+    var node: BaseRaidNode?
     var neighbors: [GKGraphNode] = []
     
     var monsters: [MonsterModel] = []
     var block: BlockModel?
+    var tower: TowerModel?
     var state: GridCellState = .empty
     
     init(parent: Field,
         position: vector_int2,
          type: GridCellType,
-         node: SKSpriteNode? = nil) {
+         cellSize: CGFloat,
+         node: BaseRaidNode? = nil) {
         self.parent = parent
         self.gridPosition = position
         self.type = type
+        self.cellSize = cellSize
         self.node = node
         super.init()
     }
@@ -38,21 +40,6 @@ class GridCell: GKEntity {
         fatalError("init(coder:) has not been implemented")
     }
     
-}
-// MARK: - Block
-extension GridCell{
-    func addBlock(){
-        type = .block
-        block = BlockModel()
-        guard let bank = parent.textureBank else { return }
-        let sprite = SKSpriteNode(texture: bank.blockTextures[0])
-        block?.node = sprite
-        node?.addChild(sprite)
-    }
-    func removeBlock(){
-        type = .road
-        block?.node?.removeFromParent()
-    }
 }
 
 // MARK: - monster towers

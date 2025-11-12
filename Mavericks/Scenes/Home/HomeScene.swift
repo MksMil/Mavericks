@@ -19,12 +19,63 @@ class HomeScene: SKScene{
         super.didMove(to: view)
         size = view.frame.size
         scaleMode = .aspectFill
-
+        print("home size: \(size)")
         setupCamera()
         backgroundColor = NSColor.gray
+        setupButtons()
         
     }
+    deinit{
+        print("home deinit")
+    }
+}
+// MARK: - Buttons
+extension HomeScene{
+    func setupButtons(){
+        makeStartButton()
+        makeTestButton()
+    }
     
+    func makeStartButton(){
+        let buttonNode = SKNode()
+        buttonNode.name = "startButton"
+        buttonNode.position = CGPoint(x: size.width / 2,
+                                      y: size.height / 2)
+        
+        let buttonBgNode = SKShapeNode(ellipseOf: CGSize(width: 100, height: 64))
+        buttonBgNode.fillColor = .blue
+        buttonBgNode.strokeColor = .white
+        buttonBgNode.name = "startButtonBg"
+        
+        let labelNode = SKLabelNode(text: "Start")
+        labelNode.name = "startButtonLabel"
+        labelNode.position = CGPoint(x: 0,
+                                     y: -12)
+        
+        buttonNode.addChild(buttonBgNode)
+        buttonBgNode.addChild(labelNode)
+        addChild(buttonNode)
+    }
+    func makeTestButton(){
+        let buttonNode = SKNode()
+        buttonNode.name = "testButton"
+        buttonNode.position = CGPoint(x: size.width / 2,
+                                      y: size.height / 2 - 74)
+        
+        let buttonBgNode = SKShapeNode(ellipseOf: CGSize(width: 100, height: 64))
+        buttonBgNode.fillColor = .blue
+        buttonBgNode.strokeColor = .white
+        buttonBgNode.name = "testButtonBg"
+        
+        let labelNode = SKLabelNode(text: "Test")
+        labelNode.name = "testButtonLabel"
+        labelNode.position = CGPoint(x: 0,
+                                     y: -12)
+        
+        buttonNode.addChild(buttonBgNode)
+        buttonBgNode.addChild(labelNode)
+        addChild(buttonNode)
+    }
 }
 
 // MARK: - Camera control
@@ -88,25 +139,35 @@ extension HomeScene {
     // Обработка касаний (например, клик или двойной клик)
     func handleMouseDown(with event: NSEvent) {
         print("mouse down")
-        let location = event.locationInWindow
-        let sceneLocation = convertPoint(fromView: location)
-//        print("location: \(location)... scene location: \(sceneLocation)")
-        if let sprite = childNode(withName: "testSprite") as? SKSpriteNode, sprite.contains(sceneLocation) {
-            sprite.color = NSColor.blue
-            selectedSprite = sprite
-        }
+//        let location = event.locationInWindow
+//        let sceneLocation = convertPoint(fromView: location)
+////        print("location: \(location)... scene location: \(sceneLocation)")
+//        if let sprite = childNode(withName: "testSprite") as? SKSpriteNode, sprite.contains(sceneLocation) {
+//            sprite.color = NSColor.blue
+//            selectedSprite = sprite
+//        }
     }
     
     // Обработка завершения касания
     func handleMouseUp(with event: NSEvent) {
         print("mouse up")
-        let location = event.locationInWindow
-        let sceneLocation = convertPoint(fromView: location)
-        if let sprite = childNode(withName: "testSprite") as? SKSpriteNode, sprite.contains(sceneLocation) {
-            sprite.color = NSColor.red
-            sprite.alpha = 1
+        let location = event.location(in: self)
+        if let tappedNode = nodes(at: location).first, let name = tappedNode.name{
+            if ["startButton","startButtonBg","startButtonLabel"].contains(name){
+                mainViewDelegate?.presentScene(.raidScene)
+            }
+            if ["testButton","testButtonBg","testButtonLabel"].contains(name){
+                mainViewDelegate?.presentScene(.testScene)
+            }
+
         }
-        selectedSprite = nil
+//        let location = event.locationInWindow
+//        let sceneLocation = convertPoint(fromView: location)
+//        if let sprite = childNode(withName: "testSprite") as? SKSpriteNode, sprite.contains(sceneLocation) {
+//            sprite.color = NSColor.red
+//            sprite.alpha = 1
+//        }
+//        selectedSprite = nil
     }
     
     // Обработка движения курсора (для касаний с перемещением)

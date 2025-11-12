@@ -10,7 +10,7 @@ import SpriteKit
 
 class TestScene: SKScene, RootScene {
     
-    
+    let bank = TextureBank(levelInfo: "", cellSize: 64)
     weak var mainViewDelegate: (any MainViewDelegateProtocol)?
     
     private var monsterSprite: SKSpriteNode?
@@ -48,7 +48,7 @@ class TestScene: SKScene, RootScene {
         view.showsDrawCount = true
         view.showsFields = true
         setupCamera()
-        
+        makeBackButton()
         let atlas = SKTextureAtlas(named: "Monster")
                 
         let headTexture = atlas.textureNamed("monster_head")
@@ -109,20 +109,46 @@ class TestScene: SKScene, RootScene {
         let normaltxt = cmbTextures.map{$0.generatingNormalMap()}
         node.normalTexture = normaltxt[0]
         node.position = CGPoint(x: size.width / 2, y: size.height / 2 - 100)
-        
-        
         addChild(node)
         node.run(SKAction.repeatForever(
             SKAction.group([SKAction.animate(with: cmbTextures, timePerFrame: 0.1,resize: true, restore: false),
                             SKAction.animate(withNormalTextures: normaltxt,
                                              timePerFrame: 0.1,resize: true,restore: false)])))
-        
+        for i in 0..<bank.hudTextures.count{
+            let node = SKSpriteNode(texture: bank.hudTextures[i])
+            node.position = CGPoint(x: size.width / 2 - 128 + 64 * CGFloat(i),
+                                    y: size.height / 2 - 160)
+            addChild(node)
+        }
 
     }
     
 
 }
-
+// MARK: - Buttons
+extension TestScene{
+     func makeBackButton(){
+         print("add home button")
+         let buttonNode = SKNode()
+         buttonNode.name = "homeButton"
+         buttonNode.position = CGPoint(x: size.width / 4 + 60,
+                                       y: 3 * size.height / 4 - 22)
+         
+         let buttonBgNode = SKShapeNode(rectOf: CGSize(width: 100, height: 40))
+         buttonBgNode.fillColor = .blue
+         buttonBgNode.strokeColor = .white
+         buttonBgNode.name = "homeButtonBg"
+         
+         let labelNode = SKLabelNode(text: "Home")
+         labelNode.name = "homeButtonLabel"
+         labelNode.position = CGPoint(x: 0,
+                                      y: -12)
+         
+         buttonNode.addChild(buttonBgNode)
+         buttonBgNode.addChild(labelNode)
+         addChild(buttonNode)
+     }
+}
 
 //MARK: - handle events
 extension TestScene {
@@ -139,7 +165,12 @@ extension TestScene {
     }
     
     func handleMouseDown(with event: NSEvent) {
-        
+        let location = event.location(in: self)
+        if let tappedNode = nodes(at: location).first, let name = tappedNode.name{
+            if ["homeButton","homeButtonBg","homeButtonLabel"].contains(name){
+                mainViewDelegate?.presentScene(.home)
+            }
+        }
 //        guard let touch = touches.first else { return }
 //        let location = event.location(in: self)
         

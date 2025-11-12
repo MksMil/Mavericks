@@ -4,10 +4,13 @@ protocol RaidDataInformer: AnyObject {
 //    var controlInputDelegate: ControlInputDelegate? {get set}
     var outputDelegate: RaidScene? {get set}
     var pauseMenu: PauseMenuNode {get set}
-    
-    func showMenu(inPosition: CGPoint)
+    var size: CGSize {get set}
+    func start()
+    func showTowerMenu(inPosition: CGPoint)
+    func hideTowerMenu()
+    func showTowerUpgradeMenu(tower: TowerModel,inPosition: CGPoint)
+    func hideTowerUpgradeMenu()
     func showInfo(contentOwner: Informable)
-    func hideMenu()
     
     func showPauseMenu()
     func hidePauseMenu()

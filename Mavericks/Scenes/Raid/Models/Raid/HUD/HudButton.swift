@@ -16,9 +16,12 @@ class HudButton: BaseRaidNode{
     }
     
     init(type: BaseRaidNodeType,
+         inputDelegate: NodeTappedHandlable?,
          texture: SKTexture,
          position: CGPoint = .zero) {
-        super.init(type: type, size: texture.size())
+        super.init(type: type,
+                   inputDelegate: inputDelegate,
+                   size: texture.size())
         self.texture = texture
         self.position = position
         isUserInteractionEnabled = false

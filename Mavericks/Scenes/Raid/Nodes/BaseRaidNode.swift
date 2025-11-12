@@ -21,12 +21,28 @@ enum BaseRaidNodeType {
     case resorses // resourses info/actions
 }
 
+enum InputDelegateType{
+    case mainHudInputDelegate
+    case settingsMenuInputDelegate
+    case fieldInputDelegate
+    case towerBuildMenuInputDelegate, towerModifyMenuInputDelegate
+    case blockBuildMenuInputDelegate, blockModifyMenuInputDelegate
+    
+    case none
+}
+
 class BaseRaidNode: SKSpriteNode {
-    let type: BaseRaidNodeType
-    init(type: BaseRaidNodeType, texture: SKTexture? = nil, color: NSColor = .clear, size: CGSize = .zero) {
+    var type: BaseRaidNodeType
+    var inputDelegate: NodeTappedHandlable? //handle this node touches
+    init(type: BaseRaidNodeType,
+         inputDelegate: NodeTappedHandlable?,
+         texture: SKTexture? = nil,
+         color: NSColor = .clear,
+         size: CGSize = .zero) {
         self.type = type
+        self.inputDelegate = inputDelegate
         var newsize = size
-        if let texture {
+        if let texture, size == .zero {
             newsize = texture.size()
         }
         super.init(texture: texture, color: color, size: newsize)

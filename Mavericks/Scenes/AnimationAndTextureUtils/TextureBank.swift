@@ -82,11 +82,28 @@ class TextureBank: RaidDataSource{
         makeHudMenuTowersButtonsTextures()
         makePauseMenuTextures()
         makeBlockTexture()
+        makeHudButtonsTextures()
     }
     
 }
 // MARK: - HUD
 extension TextureBank {
+    // MARK: Hud Buttons (settings, run, pause, cancel)
+    func makeHudButtonsTextures(){
+        let pauseMenuAtlas = SKTexture(imageNamed: "settingsHUD")
+        //from bottom to top
+        for j in 0..<4{
+            for i in 0..<2 {
+                let rect = CGRect(
+                    x: CGFloat(i) * pauseMenuAtlas.textureRect().width / 2 ,
+                    y: CGFloat(j) * pauseMenuAtlas.textureRect().height / 4,
+                    width: pauseMenuAtlas.textureRect().width / 2,
+                    height:pauseMenuAtlas.textureRect().height / 4)
+                let texture = SKTexture(rect: rect, in: pauseMenuAtlas)
+                hudTextures.append(texture)
+            }
+        }
+    }
     // MARK: PauseMenu buttons (resume,restart,options, exit)
     func makePauseMenuTextures(){
         let pauseMenuAtlas = SKTexture(imageNamed: "pauseMenu")
@@ -103,6 +120,7 @@ extension TextureBank {
     // MARK: Sell/Upgrade
     func makeHudMenuUpgradeSellButtonsTextures(){
         let upgradeAtlas = SKTexture(imageNamed: "sellUpgrade")
+        
         for i in 0..<2 {
             let rect = CGRect(
                 x: CGFloat(i) * upgradeAtlas.textureRect().width / 2 ,

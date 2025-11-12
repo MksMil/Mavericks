@@ -1,22 +1,44 @@
 import SpriteKit
 import GameplayKit
 
-class Field: GKEntity {
-    weak var scene: RaidScene?
+class Field: SKNode{
+    weak var fieldOutputDelegate: FieldOutputDelegateProtocol?
+    weak var raidScene: RaidScene?
     //texture bank
-    let textureBank: RaidDataSource?
+    let textureBank: RaidDataSource
     
-    let fieldNode: SKNode = SKNode()
+    var selectedCell: GridCell? //
     
+    //tower menus
+    var fieldBuildingMenuInputDelegate: FieldBuildingMenuInputDelegateProtocol?
+    var towerModifyMenuInputDelegate: TowerModifyMenuInputDelegateProtocol?
+    
+    //block / trap menus
+    var roadBuildingMenuInputDelegate: RoadBuildingMenuInputDelegateProtocol?
+    var blockModifyMenuInputDelegate: BlockModifyMenuInputDelegateProtocol?
+        
+    //monster info
+    
+    //hero info / hud
+    
+    //base info
+    
+    //resources info + menu?
+    
+    //spawn info
+    
+    //quest
+    
+    //path finding
     var pathGraph: GKGridGraph<GKGridGraphNode> = GKGridGraph()
-    
     let pathComponentSystem: GKComponentSystem<FieldPathComponent> = .init(componentClass: FieldPathComponent.self)
-    
     var grid: [[GridCell]] = []
     
-    var monsterSpawns: [SpawnModel] = [] //str
-    var monsters: [MonsterModel] = []
+    var monsterSpawns: [SpawnModel] = []
+
+    //for future engine to make difficalt waves
     var towers: [TowerModel] = []
+    var blocks: [BlockModel] = []
     
     var stateMachine: GKStateMachine?
     
@@ -26,17 +48,49 @@ class Field: GKEntity {
     private let gridHeight: Int
     
     init(scene: RaidScene,
-         bank: RaidDataSource?,
-         cellSize: CGFloat = 100,
+         bank: RaidDataSource,
+         cellSize: CGFloat = 64,
          gridWidth: Int = 30,
          gridHeight: Int = 30) {
-        self.scene = scene
+        self.raidScene = scene
         self.cellSize = cellSize
         self.gridWidth = gridWidth
         self.gridHeight = gridHeight
         self.textureBank = bank
         super.init()
+        let iconSize = CGSize(width: 64, height: 64)
+        //towerbiuld
+        let towerBuildMenu = FieldBuildingMenuNode(towers: TowerType.allCases,
+                                       iconSize: iconSize,
+                                       bank: bank)
+        fieldBuildingMenuInputDelegate = towerBuildMenu
+        towerBuildMenu.fieldBuildingMenuOutputDelegate = self
+        //tower modify
+        let towerModifyMenu = FieldModifyMenuNode(iconSize: iconSize,
+                                                  bank: bank)
+        towerModifyMenuInputDelegate = towerModifyMenu
+        towerModifyMenu.towerModifyMenuOutputDelegate = self
+        //block build
+        let roadBuildingMenu = RoadBuildingMenuNode(buildings: RoadBuildingType.allCases,
+                                                    iconSize: iconSize,
+                                                    bank: bank)
+        roadBuildingMenuInputDelegate = roadBuildingMenu
+        roadBuildingMenu.roadBuildingMenuOutputDelegate = self
+        //block modify
+        let blockModifyMenu = BlockModifyMenuNode(iconSize: iconSize,
+                                                  bank: bank)
+        blockModifyMenuInputDelegate = blockModifyMenu
+        blockModifyMenuInputDelegate?.blockModifyMenuOutputDelegate = self
+        
+        //self setup
+        fieldOutputDelegate = scene
         setupStateMachine()
+        generateField()
+        //add menu nodes
+        addChild(towerBuildMenu)
+        addChild(towerModifyMenu)
+        addChild(roadBuildingMenu)
+        addChild(blockModifyMenu)
     }
     
     required init?(coder: NSCoder) {
@@ -46,16 +100,16 @@ class Field: GKEntity {
     func setupStateMachine(){
         //state machine setup
         let pausedState = PausedFieldState(field: self)
-        let rundState = RunFieldState(field: self)
+        let runState = RunFieldState(field: self)
         let initialState = InitialFieldState(field: self)
-        self.stateMachine = GKStateMachine(states: [initialState,rundState,pausedState])
+        self.stateMachine = GKStateMachine(states: [initialState,runState,pausedState])
         self.stateMachine?.enter(InitialFieldState.self)
     }
     
     func generateField() {
         setupGrid()
         //with animation add fieldNode
-        scene?.addChild(fieldNode)
+        raidScene?.addChild(self)
     }
     
     func addNewZone(){
@@ -66,21 +120,104 @@ class Field: GKEntity {
 }
 // MARK: - Pause
 extension Field {
+    func start(){
+        stateMachine?.enter(RunFieldState.self)
+        startSpawn()
+    }
     func pause(){
         stateMachine?.enter(PausedFieldState.self)
     }
     func run(){
         stateMachine?.enter(RunFieldState.self)
     }
-    func start(){
-        stateMachine?.enter(RunFieldState.self)
-        startSpawn()
+    func stop(){
+        
+    }
+}
+
+
+// MARK: - FieldInputDelegate
+extension Field: FieldInputDelegateProtocol{
+    func handleNode(_ tappedNode: BaseRaidNode,
+                    isTapped: Bool,
+                    state: SceneState,
+                    sceneLocation: CGPoint) {
+        if !isTapped{
+            selectedCell = try? cellInLocation(sceneLocation)
+            let pos = selectedCell?.scenePosition ?? .zero
+            let type = tappedNode.type
+            var newState: SceneState = .run
+            switch state {
+                case .paused, .finished:
+                    return
+                case .run, .initial:
+                    print("show menu")
+                    //show menu
+                    switch type {
+                        case .field:
+                            
+                            fieldBuildingMenuInputDelegate?.show(pos)
+                            newState = .fieldBuild
+                        case .tower:
+                            towerModifyMenuInputDelegate?.show(pos)
+                            newState = .towerUpgrade
+                        case .road:
+                            roadBuildingMenuInputDelegate?.show(pos)
+                            newState = .roadBuild
+                        case .block:
+                            blockModifyMenuInputDelegate?.show(pos)
+                            newState = .blockUpgrade
+                        case .monster:
+                            print("monster tapped")
+                            newState = .monsterSelected
+                        case .hero:
+                            print("her tapped")
+                            newState = .heroSelected
+                        case .quest:
+                            print("quest here")
+                            newState = .questMenu
+                        case .hud:
+                            return
+                        case .base:
+                            print("base tapped")
+                            
+                        case .spawn:
+                            print("spawn tapped")
+                        case .resorses:
+                            print("resourses tapped")
+                    }
+                case .fieldBuild:
+                    fieldBuildingMenuInputDelegate?.hide()
+                    newState = .run
+                case .towerUpgrade:
+                    towerModifyMenuInputDelegate?.hide()
+                    newState = .run
+                case .roadBuild:
+                    roadBuildingMenuInputDelegate?.hide()
+                    newState = .run
+                case .blockUpgrade:
+                    blockModifyMenuInputDelegate?.hide()
+                    newState = .run
+                case .questMenu:
+                    print("hide menu")
+                    //hide menu
+                case .heroSelected:
+                    print("")
+                    // hero control?
+                case .monsterSelected:
+                    print("")
+                    //detach monster hide info
+            }
+            fieldOutputDelegate?.handleNewState(state: newState)
+        } else {
+            //
+        }
     }
 }
 
 // MARK: - Componenets
+//MARK: Find Path Component
 extension  Field {
-    //MARK: Find Path Component
     //use it in setup grid, when creating monster spawns
     func addFindPathComponent(to spawn: SpawnModel) {
         let component = FieldPathComponent(cellSize: cellSize, spawn: spawn)
@@ -95,10 +232,7 @@ extension  Field {
 // MARK: - Graph
 extension Field {
     private func setupGrid() {
-        guard let textureBank else {
-            print("error - texture bank is not exists")
-            return
-        }
+       
         // graph init
         pathGraph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(gridWidth),
@@ -111,6 +245,7 @@ extension Field {
                 GridCell(parent: self,
                          position: vector_int2(Int32(x), Int32(y)),
                          type: .field,
+                         cellSize: cellSize,
                          node: nil)
             }
         }
@@ -203,26 +338,54 @@ extension Field {
         for y in 0..<gridHeight {
             for x in 0..<gridWidth {
                 let cell = grid[y][x]
-                var sprite:SKSpriteNode
+                var sprite:BaseRaidNode
                 if cell.type == .field{
                     sprite = BaseRaidNode(type: .field,
+                                          inputDelegate: self,
                                           texture: textureBank.fieldTextures.randomElement())
                     sprite.size = CGSize(width: cellSize,
                                          height: cellSize)
                 } else if cell.type == .road {
                     sprite = BaseRaidNode(type: .road,
+                                          inputDelegate: self,
                                           texture: textureBank.roadTextures.randomElement())
                     sprite.size = CGSize(width: cellSize,
                                          height: cellSize)
+                } else if cell.type == .decor {
+                    sprite = BaseRaidNode(type: .quest,
+                                          inputDelegate: self,
+                        color: colorForCellType(cell.type),
+                        size: CGSize(width: cellSize,
+                                     height: cellSize))
+                } else if cell.type == .base {
+                    sprite = BaseRaidNode(type: .base,
+                                          inputDelegate: self,
+                        color: colorForCellType(cell.type),
+                        size: CGSize(width: cellSize,
+                                     height: cellSize))
+                } else if cell.type == .spawn {
+                    sprite = BaseRaidNode(type: .spawn,
+                                          inputDelegate: self,
+                        color: colorForCellType(cell.type),
+                        size: CGSize(width: cellSize,
+                                     height: cellSize))
+                } else if cell.type == .resource {
+                    sprite = BaseRaidNode(type: .resorses,
+                                          inputDelegate: self,
+                        color: colorForCellType(cell.type),
+                        size: CGSize(width: cellSize,
+                                     height: cellSize))
                 } else {
-                    sprite = SKSpriteNode(
+                    sprite = BaseRaidNode(type: .quest,
+                                          inputDelegate: self,
                         color: colorForCellType(cell.type),
                         size: CGSize(width: cellSize,
                                      height: cellSize))
                 }
                 sprite.position = gridPositionToScene(x: x, y: y)
                 sprite.name = "\(cell.type.rawValue)_\(x)_\(y)"
-                fieldNode.addChild(sprite)
+//                print("\(sprite.name)")
+                addChild(sprite)
                 cell.node = sprite
             }
         }
@@ -259,17 +422,23 @@ extension Field {
     }
 }
 
-// MARK: - checks
-extension Field {
-    
-}
-
-// MARK: - Block
+// MARK: - Blocks and traps
 extension Field{
     func addBlockToCell(_ cell: GridCell){
         guard cell.type == .road  else { return }
-        cell.addBlock()
+//        cell.addBlock()
+        cell.type = .block
+        cell.node?.type = .block
         
+        let block = BlockModel()
+        let sprite = BaseBlockNode(texture: textureBank.blockTextures[0],
+                                   parentUnit: block,
+                                   inputDelegate: self)
+        block.node = sprite
+        cell.node?.addChild(sprite)
+        cell.block = block
+        
+        //change grid, nad node connection
         if let node = pathGraph.node(atGridPosition: cell.gridPosition){
             if cell.type != .road &&
                 cell.type != .base &&
@@ -284,11 +453,24 @@ extension Field{
     
     func removeBlockFromCell(_ cell: GridCell){
         guard cell.type == .block else { return }
-        cell.removeBlock()
+
+        // TODO: return funds to player
+        if let block = cell.block{
+            block.node?.removeAllActions()
+            block.node?.removeFromParent()
+            block.node = nil
+            cell.block = nil
+            cell.type = .road
+            cell.node?.type = .road
+        }
         if let node = pathGraph.node(atGridPosition: cell.gridPosition){
             node.addConnections(to: cell.neighbors, bidirectional: true)
         }
         updatePaths()
+    }
+    
+    func upgradeBlockinCell(_ cell: GridCell){
+        print("block upgraded")
     }
 }
 
@@ -299,11 +481,10 @@ extension Field{
     //for test
     func startSpawn(){
         monsterSpawns.forEach { spawn in
-            fieldNode.run(SKAction.repeatForever(
+            run(SKAction.repeatForever(
                 SKAction.sequence(
                     [SKAction.run {spawn.startSpawnMonsters()},
-                     SKAction.wait(forDuration: 10)]
-                )
+                     SKAction.wait(forDuration: 10)])
             )
             )
         }
@@ -313,22 +494,22 @@ extension Field{
 // MARK: - Monsters
 extension Field {
     func addMonster(_ monster: MonsterModel){
-        guard let textureBank else {
-            print("texture bank doesn't exists")
-            return
-        }
+       
         if let start = monster.gridPath.first{
-            let monsterNode = BaseMonsterNode(
-                texture: textureBank.moveRightTextures[0],
-                size: CGSize(width: 30,
-                             height: 30),
-                parentUnit: monster)
+            let monsterNode = BaseMonsterNode(color: NSColor.cyan,
+                            size: CGSize(width: 32, height: 32),
+                            parentUnit: monster)
+//            BaseMonsterNode(
+//                texture: textureBank.moveRightTextures[0],
+//                size: CGSize(width: 20,
+//                             height: 20),
+//                parentUnit: monster)
             //name with id !
             monsterNode.name = "monster\(monster.id)"
             monsterNode.position = SceneHelper.gridPositionToScene(position: start.gridPosition)
             monsterNode.zPosition = 2
             monster.node = monsterNode
-            fieldNode.addChild(monsterNode)
+            addChild(monsterNode)
             monster.start()
         } else {
             print("cant add monster in field")
@@ -350,9 +531,9 @@ extension Field {
             case .fire:
                 type = .fire
             case .frost:
-                type = .freeze
+                type = .frost
             case .electro:
-                type = .electric
+                type = .electro
             case .stun:
                 type = .stun
             default: return
@@ -364,12 +545,10 @@ extension Field {
     
     func addTower(_ tower: TowerType,
                   toCell cell: GridCell){
-        guard let textureBank else {
-            print("texture bank doesn't exists")
-            return
-        }
-        guard cell.type == .field else { return }
+        guard cell.type == .field else {
+            return }
         cell.type = .tower
+        cell.node?.type = .tower
         
         let model = TowerModel(type: tower,
                                field: self,
@@ -382,25 +561,119 @@ extension Field {
                 texture = textureBank.towerMenuTextures[0]
             case .poison:
                 texture = textureBank.towerMenuTextures[1]
-            case .freeze:
+            case .frost:
                 texture = textureBank.towerMenuTextures[3]
-            case .electric:
+            case .electro:
                 texture = textureBank.towerMenuTextures[4]
             case .fire:
                 texture = textureBank.towerMenuTextures[2]
             case .stun:
                 texture = textureBank.towerMenuTextures[5]
         }
-        
-        
-            let node = BaseTowerNode(texture: texture,
+         let node = BaseTowerNode(texture: texture,
                                      size: CGSize(width: cellSize,
                                                   height: cellSize),
-                                                  parentUnit: model)
+                                     parentUnit: model,
+                                     inputDelegate: self)
             model.node = node
+            cell.tower = model
             cell.node?.addChild(node)
+            model.detectTargetCells()
         
     }
+    // MARK: Remove tower
+    func removeTowerFromCell(_ cell: GridCell){
+        guard cell.type == .tower else { return }
+        if let tower = cell.tower{
+            // TODO: return funds to player
+            tower.node?.removeAllActions()
+            tower.node?.removeFromParent()
+            cell.type = .field
+            cell.node?.type = .field
+            cell.tower = nil
+            towers.removeAll { t in
+                t == tower
+            }
+        } else {
+            print("tower to remove: not exists")
+        }
+    }
+    // MARK: Upgrade tower
+    func upgradeTowerInCell(_ cell: GridCell){
+        print("tower upgraded")
+    }
+}
+
+
+
+// MARK: - TowersBuildMenuOutput
+extension Field: FieldBuildingMenuOutputDelegateProtocol{
+    func handleNewTower(new: TowerType) {
+        //player data modify
+        //hud update
+        
+        if let cell = selectedCell{
+            addTower(new,
+                     toCell: cell)
+            fieldBuildingMenuInputDelegate?.hide()
+        } else {
+            print("cell not found")
+        }
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+    func cancel(){
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+}
+// MARK: - TowerModifyOutput
+extension Field: TowerModifyMenuOutputDelegateProtocol{
+    func handleTowerModifySellEvent() {
+        if let cell = selectedCell {
+            removeTowerFromCell(cell)
+        } else {
+            print("cell not found")
+        }
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+    
+    func handleTowerModifyUpgradeEvent() {
+        if let cell = selectedCell {
+            upgradeTowerInCell(cell)
+        } else {
+            print("cell not found")
+        }
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+}
+// MARK: - RoadBuildingMenuOutput
+extension Field: RoadBuildingMenuOutputDelegateProtocol{
+    func handleNewRoadBuilding(new: RoadBuildingType) {
+        print("block of type: \(new) added")
+        if let cell = selectedCell{
+            addBlockToCell(cell)
+        } else {
+            print("cell not found")
+        }
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+    
+}
+// MARK: -  BlockModifyMenuOutputDelegateProtocol
+extension Field: BlockModifyMenuOutputDelegateProtocol{
+    func handleBlockModifySellEvent() {
+        if let cell = selectedCell{
+            removeBlockFromCell(cell)
+        }
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+    
+    func handleBlockModifyUpgradeEvent() {
+        if let cell = selectedCell{
+            upgradeBlockinCell(cell)
+        }
+        fieldOutputDelegate?.handleNewState(state: .run)
+    }
+    
 }
 
 // MARK: - Helpers
@@ -408,7 +681,7 @@ extension Field {
     func cellInLocation(_ location: CGPoint) throws -> GridCell {
         let gridPos = convertToGridPosition(cgPoint: location,
                                             pathGraph: pathGraph )
-        print("tapped at pos: \(gridPos)")
+//        print("tapped at pos: \(gridPos)")
         guard gridPos.x >= 0, gridPos.x < Int32(gridWidth),
                 gridPos.y >= 0, gridPos.y < Int32(gridHeight) else {
             print("Invalid grid position: \(gridPos)")
@@ -426,7 +699,7 @@ extension Field {
                                        pathGraph: GKGridGraph<GKGridGraphNode>) -> vector_int2 {
         let x = Int32(floor(cgPoint.x / cellSize))
         let y = Int32(floor(cgPoint.y / cellSize))
-        
+        print("point: \(cgPoint), x: \(x), y: \(y)")
         // Проверка границ сетки
         let maxX = Int32(pathGraph.gridWidth - 1)
         let maxY = Int32(pathGraph.gridHeight - 1)

@@ -1,6 +1,6 @@
 import SpriteKit
 
-class BaseMonsterNode: SKSpriteNode{
+class BaseMonsterNode: BaseRaidNode{
     
     let parentUnit: MonsterModel
     
@@ -10,7 +10,9 @@ class BaseMonsterNode: SKSpriteNode{
          parentUnit: MonsterModel) {
         self.parentUnit = parentUnit
         
-        super.init(texture: texture,
+        super.init(type: .monster,
+                   inputDelegate: nil,
+                   texture: texture,
                    color: .clear,
                    size: size)
     }
@@ -18,9 +20,11 @@ class BaseMonsterNode: SKSpriteNode{
          size: CGSize,
          parentUnit: MonsterModel){
         self.parentUnit = parentUnit
-        super.init(texture: nil,
-                           color: color,
-                           size: size)    }
+        super.init(type: .monster,
+                   inputDelegate: nil,
+                   texture: nil,
+                   color: color,
+                   size: size)    }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

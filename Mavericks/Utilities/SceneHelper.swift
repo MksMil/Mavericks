@@ -22,7 +22,7 @@ enum SceneHelper {
     }
     
     static func gridPositionToScene(position: vector_int2) -> CGPoint {
-         let cellSize = 100.0
+        let cellSize = 64.0
          let sceneX = CGFloat(position.x) * cellSize + cellSize / 2
          let sceneY = CGFloat(position.y) * cellSize + cellSize / 2
          return CGPoint(x: sceneX, y: sceneY)

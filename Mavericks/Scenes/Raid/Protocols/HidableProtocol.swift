@@ -1,0 +1,3 @@
+protocol HidableProtocol {
+    func hide()
+}

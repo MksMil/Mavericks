@@ -16,7 +16,7 @@ class PausedFieldState: GKState{
     }
     
     override func didEnter(from previousState: GKState?) {
-        field.fieldNode.isPaused = true
+        field.isPaused = true
     }
     
     override func willExit(to nextState: GKState) {

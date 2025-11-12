@@ -27,7 +27,7 @@
 		2951B15A2E0AD0710087B13F /* Mavericks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mavericks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2951B1682E0AD0740087B13F /* MavericksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MavericksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2951B1722E0AD0740087B13F /* MavericksUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MavericksUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		29CCF8432EBB34B000826F2E /* Mavericks.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = Mavericks.xctestplan; sourceTree = "<group>"; };
+		29CCF8432EBB34B000826F2E /* Mavericks.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Mavericks.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */

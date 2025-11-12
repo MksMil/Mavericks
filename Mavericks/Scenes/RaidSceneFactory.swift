@@ -12,7 +12,7 @@ enum SceneFactory {
         let scene = RaidScene(size: initialSize,bank: bank)
         
         let field = Field(scene: scene, bank: bank)
-        scene.field = field
+        scene.fieldInputDelegate = field
         return scene
     }
 }

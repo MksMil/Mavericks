@@ -74,7 +74,7 @@ struct BlockType {
 class BlockModel: GKEntity {
     let id: String
     var health: Int
-    var node: SKSpriteNode?
+    weak var node: BaseRaidNode?
 
     init(health: Int = 100) {
         self.id = UUID().uuidString
@@ -85,6 +85,10 @@ class BlockModel: GKEntity {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit{
+        print("block model deinit")
     }
 }
 

@@ -52,7 +52,7 @@ class MonsterMoveState: GKState{
                 old.updateWithMonster(monster, enterIn: false)
             }
             //new state for monster
-            self.monster.stateMachine?.enter(MonsterIdleState.self)
+            self.monster.stateMachine?.enter(MonsterDieState.self)
             return
         }
         

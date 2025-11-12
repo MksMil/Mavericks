@@ -1,11 +1,13 @@
 import SpriteKit
 
-class PauseMenuNode: SKNode{
+class PauseMenuNode: BaseRaidNode{
     let bank: RaidDataSource
     let sceneSize: CGSize
+
+    weak var settingsMenuOutputDelegate: SettingsMenuOutputDelegateProtocol?
     
     let globalBgNode: BaseRaidNode
-    let menuBgNode: SKSpriteNode
+    let menuBgNode: BaseRaidNode
     
     let tapAction: SKAction = SKAction.scale(to: 1.1, duration: 0.1)
     let untapAction: SKAction = SKAction.scale(to: 1, duration: 0.1)
@@ -14,13 +16,16 @@ class PauseMenuNode: SKNode{
         self.sceneSize = sceneSize
         self.bank = bank
         self.globalBgNode = BaseRaidNode(type: .hud,
+                                         inputDelegate: nil,
                                          color: NSColor.black,
                                          size: sceneSize)
         self.menuBgNode = BaseRaidNode(type: .hud,
+                                       inputDelegate: nil,
                                        color: NSColor.white,
                                        size: CGSize(width: 200,
                                                     height: 300))
-        super.init()
+        super.init(type: .hud,
+                   inputDelegate: nil)
         setup()
     }
     
@@ -53,6 +58,7 @@ extension PauseMenuNode {
         let menuTextures = bank.pauseMenuTextures
         for i in 0 ..< menuTextures.count{
             let buttonNode = HudButton(type: .hud,
+                                       inputDelegate: self,
                                        texture: menuTextures[i])
             buttonNode.isUserInteractionEnabled = false
             switch i {
@@ -148,3 +154,26 @@ extension PauseMenuNode{
 //    func handleKeyUp(with event: NSEvent) {}
 //    func handleKeyDown(with event: NSEvent) {}
 //}
+
+extension PauseMenuNode: SettingsMenuInputDelegateProtocol{
+    
+    func handleNode(_ tappedNode: BaseRaidNode,
+                    isTapped: Bool,
+                    state: SceneState,
+                    sceneLocation: CGPoint) {
+        print("menu buttn tapped")
+        var type: MainHudButtonType = .resume
+        if let name = tappedNode.name{
+            if name == NodeNames.resume.rawValue{
+                type = .resume
+                hide()
+            } else if name == NodeNames.options.rawValue{
+                type = .options
+            }
+        }
+        
+        settingsMenuOutputDelegate?.handleEvent(type)
+    }
+    
+    
+}

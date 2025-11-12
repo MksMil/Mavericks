@@ -19,7 +19,11 @@ class SpawnModel: GKEntity {
     var goal: GridCell
     
     //for update path list
-    var monsters: [MonsterModel] = []
+    var monsters: [MonsterModel] = []// {
+//        didSet{
+//            print("monsters count changed: \(monsters.count)")
+//        }
+//    }
     
     var resourceType: ResourceType = .none
     var resoucesQuantity: Int
@@ -50,11 +54,8 @@ class SpawnModel: GKEntity {
     // TODO: waves mechanizmus
     
     func startSpawnMonsters(){
-        guard let bank = field.textureBank else {
-            print("cant start spwan - texture bank doesn't exist")
-            return
-        }
-        let monster = MonsterModel(bank: bank,
+        
+        let monster = MonsterModel(bank: field.textureBank,
                                    spawn: self,
                                    path: pathComponent?.actualPath ?? [], armor: ArmorModel(physic: 10,
                                                      fire: 10,                  chemic: 10))
