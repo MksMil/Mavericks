@@ -17,7 +17,7 @@ class HudNode: SKNode{
          bank: RaidDataSource) {
         self.bank = bank
         
-        let pauseMenu = PauseMenuNode(sceneSize: camSize,
+        let pauseMenu = SettingsMenuNode(sceneSize: camSize,
                                   bank: bank)
         settingsMenuInputDelegate = pauseMenu
         super.init()

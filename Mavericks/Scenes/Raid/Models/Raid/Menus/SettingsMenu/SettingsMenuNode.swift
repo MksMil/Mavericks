@@ -1,6 +1,6 @@
 import SpriteKit
 
-class PauseMenuNode: BaseRaidNode{
+class SettingsMenuNode: BaseRaidNode{
     let bank: RaidDataSource
     let sceneSize: CGSize
 
@@ -37,7 +37,7 @@ class PauseMenuNode: BaseRaidNode{
     }
 }
 // MARK: - Setup
-extension PauseMenuNode {
+extension SettingsMenuNode {
     func setup(){
         setupGlobalBg()
         setupMenu()
@@ -89,7 +89,7 @@ extension PauseMenuNode {
 }
 
 // MARK: - Animations
-extension PauseMenuNode{
+extension SettingsMenuNode{
     func show() {
         globalBgNode.removeAllActions()
         menuBgNode.removeAllActions()
@@ -155,7 +155,7 @@ extension PauseMenuNode{
 //    func handleKeyDown(with event: NSEvent) {}
 //}
 
-extension PauseMenuNode: SettingsMenuInputDelegateProtocol{
+extension SettingsMenuNode: SettingsMenuInputDelegateProtocol{
     
     func handleNode(_ tappedNode: BaseRaidNode,
                     isTapped: Bool,

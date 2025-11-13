@@ -21,6 +21,8 @@ import GameplayKit
 //attack
 //attacked
 //}
+
+// TODO: rework movement
 class MonsterModel: GKEntity {
 
     weak var node: BaseMonsterNode?
@@ -33,8 +35,8 @@ class MonsterModel: GKEntity {
     
     let id: String
     weak var spawn: SpawnModel?
-    
-    var bank: RaidDataSource //texture atlas name
+    var currentCell: GridCell? //for movement rework - change speed and dmg if trap exists
+    let bank: RaidDataSource //texture atlas name
     
     var health: Int
     //regeneration?

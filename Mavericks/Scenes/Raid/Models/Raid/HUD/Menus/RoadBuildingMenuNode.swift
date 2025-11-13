@@ -25,13 +25,14 @@ class RoadBuildingMenuNode: BaseRaidNode {
         self.bank = bank
         self.buildings = buildings
         let blockTextures = bank.blockTextures
+        let trapTextures = bank.trapTextures
         self.baseBlockButton = HudButton(type: .hud,
                                    inputDelegate: nil,
                                    texture: blockTextures[0])
         baseBlockButton.name = NodeNames.block.rawValue
         self.trapButton = HudButton(type: .hud,
                                    inputDelegate: nil,
-                                   texture: blockTextures[0])
+                                   texture: trapTextures[0])
         trapButton.name = NodeNames.trap.rawValue
 
         super.init(type: .hud,

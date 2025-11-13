@@ -26,6 +26,12 @@ class TextureBank: RaidDataSource{
     
     var towerTextures: [SKTexture] = []
     var blockTextures: [SKTexture] = []
+    var trapTextures: [SKTexture] = []
+    
+    var baseTextures: [SKTexture] = []
+    var resTextures: [SKTexture] = []
+    var questTextures: [SKTexture] = []
+    var spawnTextures: [SKTexture] = []
     
     var hudTextures: [SKTexture] = []
     var towerMenuTextures: [SKTexture] = []
@@ -70,7 +76,16 @@ class TextureBank: RaidDataSource{
         //change progress state
         await SKTexture.preload(blockTextures)
         //change progress state
-
+        await SKTexture.preload(baseTextures)
+        //change progress state
+        await SKTexture.preload(resTextures)
+        //change progress state
+        await SKTexture.preload(questTextures)
+        //change progress state
+        await SKTexture.preload(spawnTextures)
+        //change progress state
+        await SKTexture.preload(trapTextures)
+        //change progress state
     }
     
     func config(){
@@ -83,11 +98,45 @@ class TextureBank: RaidDataSource{
         makePauseMenuTextures()
         makeBlockTexture()
         makeHudButtonsTextures()
+        makeBaseTextures()
+        makeResTextures()
+        makeQuestTextures()
+        makeSpawnTextures()
+        makeTrapTextures()
     }
     
 }
 // MARK: - HUD
 extension TextureBank {
+    // MARK: - Trap
+    func makeTrapTextures(){
+        let trapTexture = SKTexture(imageNamed: "trap")
+        trapTextures.append(trapTexture)
+    }
+    
+    // MARK: Base
+    func makeBaseTextures(){
+        let baseTxt = SKTexture(imageNamed: "base")
+        baseTextures.append(baseTxt)
+    }
+    // MARK: Res
+    func makeResTextures(){
+        let resTxt = SKTexture(imageNamed: "res")
+        resTextures.append(resTxt)
+    }
+    
+    // MARK: Quest
+    func makeQuestTextures(){
+        let questTxt = SKTexture(imageNamed: "quest")
+        questTextures.append(questTxt)
+    }
+    
+    // MARK: Spawn
+    func makeSpawnTextures(){
+        let spawnTxt = SKTexture(imageNamed: "spawn")
+        spawnTextures.append(spawnTxt)
+    }
+    
     // MARK: Hud Buttons (settings, run, pause, cancel)
     func makeHudButtonsTextures(){
         let pauseMenuAtlas = SKTexture(imageNamed: "settingsHUD")

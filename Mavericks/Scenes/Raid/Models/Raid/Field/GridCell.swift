@@ -5,6 +5,7 @@ enum GridCellState {
     case empty, enemiesIn
 }
 
+
 class GridCell: GKEntity {
     let parent: Field
     let gridPosition: vector_int2
@@ -21,6 +22,7 @@ class GridCell: GKEntity {
     var monsters: [MonsterModel] = []
     var block: BlockModel?
     var tower: TowerModel?
+    var trap: TrapModel?
     var state: GridCellState = .empty
     
     init(parent: Field,
