@@ -6,12 +6,13 @@ enum SceneFactory {
                           initialSize: CGSize,
                           cellSize: CGFloat) -> RootScene{
         
-        let bank = TextureBank(levelInfo: levelInfo,
-                               cellSize: cellSize)
+        let bank = TextureBank()
 
         let scene = RaidScene(size: initialSize,bank: bank)
         
-        let field = Field(scene: scene, bank: bank)
+        let field = Field(scene: scene,
+                          bank: bank,
+                          map: FieldModel.TestLevel)
         scene.fieldInputDelegate = field
         return scene
     }

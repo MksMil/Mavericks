@@ -31,18 +31,18 @@ class FieldModifyMenuNode: BaseRaidNode {
     func setupMenu(rad: CGFloat = .zero){
         let upgradeButton = HudButton(type: .hud,
                                       inputDelegate: self,
-                                      texture: bank.upgradeSellTextures[0])
+                                      texture: bank.hudAtlas.textureNamed("upgradeMenuButton"))
         upgradeButton.name = NodeNames.upgrade.rawValue
         let sellButton = HudButton(type: .hud,
                                    inputDelegate: self,
-                                   texture: bank.upgradeSellTextures[1])
+                                   texture: bank.hudAtlas.textureNamed("sellMenuButton"))
         sellButton.name = NodeNames.sell.rawValue
         let radius: CGFloat = rad == .zero ? iconSize.width : rad
         
         //temp cancel texture
         let cancelButton = HudButton(type: .hud,
                                      inputDelegate: self,
-                                     texture: bank.hudTextures[0])
+                                     texture: bank.hudAtlas.textureNamed("cancelHUDButton"))
         cancelButton.name = NodeNames.cancel.rawValue
         let menuNodes = [cancelButton,upgradeButton,sellButton]
         menuNodes.forEach{$0.size = iconSize}
@@ -70,11 +70,11 @@ extension FieldModifyMenuNode {
 // MARK: - TowerModifyMenuInputDelegate
 extension FieldModifyMenuNode: TowerModifyMenuInputDelegateProtocol{
     func handleNode(_ tappedNode: BaseRaidNode,
-                    isTapped: Bool,
+                    isTapEnded: Bool,
                     state: SceneState,
                     sceneLocation: CGPoint) {
         print("in tower modify handler")
-        if !isTapped{
+        if !isTapEnded{
             if let name = tappedNode.name{
                 if NodeNames.towerModify.contains(name){
 //                    if let type = TowerType(rawValue: name){

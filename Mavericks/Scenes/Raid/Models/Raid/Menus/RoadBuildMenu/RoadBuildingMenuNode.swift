@@ -24,15 +24,15 @@ class RoadBuildingMenuNode: BaseRaidNode {
         self.iconSize = iconSize
         self.bank = bank
         self.buildings = buildings
-        let blockTextures = bank.blockTextures
-        let trapTextures = bank.trapTextures
+        let blockTexture = bank.contentAtlas.textureNamed("block")
+        let trapTexture = bank.contentAtlas.textureNamed("trap")
         self.baseBlockButton = HudButton(type: .hud,
                                    inputDelegate: nil,
-                                   texture: blockTextures[0])
+                                   texture: blockTexture)
         baseBlockButton.name = NodeNames.block.rawValue
         self.trapButton = HudButton(type: .hud,
                                    inputDelegate: nil,
-                                   texture: trapTextures[0])
+                                   texture: trapTexture)
         trapButton.name = NodeNames.trap.rawValue
 
         super.init(type: .hud,
@@ -57,7 +57,7 @@ class RoadBuildingMenuNode: BaseRaidNode {
         //temp cancel texture
         let cancelButton = HudButton(type: .hud,
                                      inputDelegate: self,
-                                     texture: bank.hudTextures[0])
+                                     texture: bank.hudAtlas.textureNamed("cancelHUDButton"))
         cancelButton.name = NodeNames.cancel.rawValue
         
         buildingNodes.insert(cancelButton, at: 0)
@@ -91,10 +91,10 @@ extension RoadBuildingMenuNode {
 extension RoadBuildingMenuNode: RoadBuildingMenuInputDelegateProtocol{
     
     func handleNode(_ tappedNode: BaseRaidNode,
-                    isTapped: Bool,
+                    isTapEnded: Bool,
                     state: SceneState,
                     sceneLocation: CGPoint) {
-        if !isTapped{
+        if !isTapEnded{
             if let name = tappedNode.name{
                 if NodeNames.roadBuildings.contains(name){
                     if name == NodeNames.cancel.rawValue{

@@ -18,6 +18,9 @@ protocol ControlInputDelegate: AnyObject {
     
     func handleMouseUp(with event: NSEvent)
     
+    func handleRightMouseDown(with event: NSEvent)
+    func handleRightMouseUp(with event: NSEvent)
+    
     // Обработка движения курсора (для касаний с перемещением)
     func handleMouseMoved(with event: NSEvent)
     

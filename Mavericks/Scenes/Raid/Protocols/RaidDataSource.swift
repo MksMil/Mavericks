@@ -2,24 +2,10 @@
 import SpriteKit
 
 protocol RaidDataSource: AnyObject {
-    var moveRightTextures:[SKTexture] {get set}
-    var moveUpTextures:[SKTexture] {get set}
-    var moveDownTextures:[SKTexture] {get set}
-    
-    var towerTextures: [SKTexture] {get set}
-    var blockTextures: [SKTexture] {get set}
-    var trapTextures: [SKTexture] {get set}
-    
-    var hudTextures: [SKTexture] {get set}
-    var towerMenuTextures: [SKTexture] {get set}
-    var upgradeSellTextures: [SKTexture] {get set}
-    var fieldTextures: [SKTexture] {get set}
-    var roadTextures: [SKTexture] {get set}
-    var pauseMenuTextures: [SKTexture] {get set}
-    
-    var baseTextures: [SKTexture] {get set}
-    var resTextures: [SKTexture] {get set}
-    var questTextures: [SKTexture] {get set}
-    var spawnTextures: [SKTexture] {get set}
-    
+    var mapAtlas: SKTextureAtlas { get }
+    var contentAtlas: SKTextureAtlas { get }
+    var interactiveAtlas: SKTextureAtlas { get }
+    var hudAtlas: SKTextureAtlas {get }
+ 
+    func preload(completion: @escaping () -> Void)
 }

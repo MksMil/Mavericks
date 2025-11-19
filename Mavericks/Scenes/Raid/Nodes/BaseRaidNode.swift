@@ -19,6 +19,7 @@ enum BaseRaidNodeType {
     case base // base info/actions
     case spawn // monster spawn
     case resorses // resourses info/actions
+    case empty
 }
 
 enum InputDelegateType{

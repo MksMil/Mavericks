@@ -47,9 +47,38 @@ class TowerModel: GKEntity{
     var effectDuration: CGFloat = 1
     var level: Int = 1
     
-    var targetCells: [GridCell] = []
+//    var targetCells: [GridCell] = []
     var targets: [MonsterModel] = []
     var targetPredicate: TargetPredicate = .first
+    
+    
+    // ✅ КЭШ targetCells — пересчитываем ТОЛЬКО при level up или радиусе
+        private var cachedTargetCells: [GridCell] = []
+        func detectTargetCells() {
+            cachedTargetCells.removeAll()
+            
+            // ✅ ЛОКАЛЬНЫЙ поиск: только радиус 4 клетки (81 клетка max)
+            let centerX = Int(cell.gridPosition.x)
+            let centerY = Int(cell.gridPosition.y)
+            
+            for dx in -Int(fireRadius)...Int(fireRadius) {
+                for dy in -Int(fireRadius)...Int(fireRadius) {
+                    let targetX = centerX + dx
+                    let targetY = centerY + dy
+                    
+                    guard targetX >= 0 && targetX < field.gridWidth &&
+                          targetY >= 0 && targetY < field.gridHeight else { continue }
+                    
+                    if abs(dx) + abs(dy) <= Int(fireRadius) {  // Манхэттен
+                        cachedTargetCells.append(field.grid[targetX][targetY])
+                    }
+                }
+            }
+        }
+        
+        // ✅ Быстрый доступ
+        var targetCells: [GridCell] { cachedTargetCells }
+    
     
     // MARK: init
     init(type: TowerType,field: Field,cell: GridCell) {
@@ -85,18 +114,18 @@ class TowerModel: GKEntity{
     
  
     //detect cells available for targeting enemies
-    func detectTargetCells(){
-        //targetCells = ...
-        field.grid.forEach { row in
-            row.forEach { targetCell in
-                if CGFloat(abs(cell.gridPosition.x - targetCell.gridPosition.x) + abs(cell.gridPosition.y - targetCell.gridPosition.y)) <= fireRadius{
-                    self.targetCells.append(targetCell)
-                }
-            }
-        }
-        testShooting()
-//        print(targetCells.count)
-    }
+//    func detectTargetCells(){
+//        //targetCells = ...
+//        field.grid.forEach { row in
+//            row.forEach { targetCell in
+//                if CGFloat(abs(cell.gridPosition.x - targetCell.gridPosition.x) + abs(cell.gridPosition.y - targetCell.gridPosition.y)) <= fireRadius{
+//                    self.targetCells.append(targetCell)
+//                }
+//            }
+//        }
+//        testShooting()
+////        print(targetCells.count)
+//    }
     func testShooting(){
         updateTargets()
         //TODO: change to action to able to pause

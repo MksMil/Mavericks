@@ -170,6 +170,14 @@ extension HomeScene {
 //        selectedSprite = nil
     }
     
+    func handleRightMouseDown(with event: NSEvent) {
+        
+    }
+    
+    func handleRightMouseUp(with event: NSEvent) {
+      
+    }
+    
     // Обработка движения курсора (для касаний с перемещением)
     func handleMouseMoved(with event: NSEvent) {
         print("mouse moved")
@@ -223,4 +231,6 @@ extension HomeScene {
     
 }
 
-extension HomeScene: RootScene{}
+extension HomeScene: RootScene{
+   
+}

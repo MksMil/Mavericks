@@ -2,7 +2,7 @@ import AppKit
 
 protocol NodeTappedHandlable {
     func handleNode(_ tappedNode:BaseRaidNode,
-                    isTapped: Bool,
+                    isTapEnded: Bool,
                     state: SceneState,
                     sceneLocation: CGPoint)
 }

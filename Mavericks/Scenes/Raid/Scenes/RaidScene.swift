@@ -39,7 +39,8 @@ class RaidScene: SKScene, RootScene {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(size: CGSize,bank: RaidDataSource) {
+    init(size: CGSize,
+         bank: RaidDataSource) {
         self.bank = bank
         super.init(size: size)
     }
@@ -49,16 +50,17 @@ class RaidScene: SKScene, RootScene {
     weak var mainViewDelegate: MainViewDelegateProtocol?
     weak var bank: RaidDataSource?
     
+    //hud + game engine
     var mainHudInputDelegate: MainHudInputDelegateProtocol?
     var fieldInputDelegate: FieldInputDelegateProtocol?
    
+    
     var state: SceneState = .initial
     
     var selectedCell: GridCell?
     var selectedNode: HudButton?
     
     var cameraNode = SKCameraNode()
-//    var hudNode: RaidDataInformer?
     
     private let cellSize: CGFloat = 64.0
     
@@ -68,22 +70,28 @@ class RaidScene: SKScene, RootScene {
     private var isCollecting: Bool = false
     private var waveNumber: Int = 0
     
-    private let gridWidth = 30
-    private let gridHeight = 30
-    //camera constraints for expand level
-    //expandable size
+    // TODO: assign from FieldModel
+    private let gridWidth = 31
+    private let gridHeight = 31
+    
     
     override func didMove(to view: SKView) {
         super.didMove(to: view)
         size = view.frame.size
         scaleMode = .aspectFill
-        backgroundColor = .black
+        backgroundColor = .gray
+        view.ignoresSiblingOrder = true
+//        view.preferredFramesPerSecond = 30
         view.showsFPS = true
         view.showsNodeCount = true
         view.showsDrawCount = true
         view.showsFields = true
         
-        physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        physicsWorld.gravity = CGVector.zero
+        physicsWorld.speed = 0
+        bank?.preload {
+            print("atlases preloaded")
+        }
         setupCamera()
         setupHUD()
     }
@@ -91,7 +99,6 @@ class RaidScene: SKScene, RootScene {
     deinit{
         print("raid scene deinit")
     }
-    
 //    override func didChangeSize(_ oldSize: CGSize) {
 //        print("size changed")
 //    }
@@ -99,9 +106,8 @@ class RaidScene: SKScene, RootScene {
 
 // MARK: - Camera
 extension RaidScene{
-    //TODO: add scene camCanMove camCanScale constraints, and change constraints when level extended
+    //TODO: add scene camCanMove camCanScale constraints, and change constraints when level extended 
     
-    // Настройка камеры
     private func setupCamera() {
         cameraNode.name = NodeNames.camera.rawValue
         addChild(cameraNode)
@@ -155,14 +161,16 @@ extension RaidScene {
     
 #elseif os(macOS)
     func processEvent(_ event: NSEvent,
-                      isTapped: Bool){
+                      isTapEnded: Bool,
+                      isLeftMouseButton: Bool){
         let location = event.location(in: self)
         if let tappedNode = nodes(at: location).first as? BaseRaidNode{
             let delegate = tappedNode.inputDelegate
             delegate?.handleNode(tappedNode,
-                                 isTapped: isTapped,
+                                 isTapEnded: isTapEnded,
                                  state: state,
                                  sceneLocation: location)
+            mainHudInputDelegate?.showInfo(text: tappedNode.name ?? "no info")
         }
     }
 #endif
@@ -183,11 +191,21 @@ extension RaidScene: ControlInputDelegate {
     func handleMouseUp(with event: NSEvent) {
         print("mouse up \(state)")
 
-        processEvent(event,isTapped: false)
+        processEvent(event,isTapEnded: false, isLeftMouseButton: true)
     }
     func handleMouseDown(with event: NSEvent) {
 //        print("mouse down")
 //        processEvent(event,isTapped: true)
+    }
+    
+    func handleRightMouseUp(with event: NSEvent) {
+        print("right mouse button up")
+        processEvent(event,isTapEnded: false, isLeftMouseButton: false)
+    }
+    
+    func handleRightMouseDown(with event: NSEvent) {
+        print("right mouse button down")
+        processEvent(event,isTapEnded: true, isLeftMouseButton: false)
     }
     
     func handleScrollWheel(with event: NSEvent) {

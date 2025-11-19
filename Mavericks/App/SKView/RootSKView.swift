@@ -45,6 +45,13 @@ class RootSKView: SKView {
         router?.controlInputDelegate?.handleMouseMoved(with: event)
     }
     
+    override func rightMouseDown(with event: NSEvent) {
+        router?.controlInputDelegate?.handleRightMouseDown(with: event)
+    }
+    override func rightMouseUp(with event: NSEvent) {
+        router?.controlInputDelegate?.handleRightMouseUp(with: event)
+    }
+    
     override func keyUp(with event: NSEvent) {
         router?.controlInputDelegate?.handleKeyUp(with: event)
     }

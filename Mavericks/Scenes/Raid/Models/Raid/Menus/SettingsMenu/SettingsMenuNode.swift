@@ -55,7 +55,12 @@ extension SettingsMenuNode {
         addChild(menuBgNode)
     }
     func setupButtons(){
-        let menuTextures = bank.pauseMenuTextures
+        let menuTextures = [
+            bank.hudAtlas.textureNamed("resumeButton"),
+            bank.hudAtlas.textureNamed("restartButton"),
+            bank.hudAtlas.textureNamed("optionsButton"),
+            bank.hudAtlas.textureNamed("exitButton")
+        ]
         for i in 0 ..< menuTextures.count{
             let buttonNode = HudButton(type: .hud,
                                        inputDelegate: self,
@@ -158,7 +163,7 @@ extension SettingsMenuNode{
 extension SettingsMenuNode: SettingsMenuInputDelegateProtocol{
     
     func handleNode(_ tappedNode: BaseRaidNode,
-                    isTapped: Bool,
+                    isTapEnded: Bool,
                     state: SceneState,
                     sceneLocation: CGPoint) {
         print("menu buttn tapped")

@@ -9,8 +9,10 @@
 import SpriteKit
 
 class TestScene: SKScene, RootScene {
+  
     
-    let bank = TextureBank(levelInfo: "", cellSize: 64)
+    
+    let bank = TextureBank()
     weak var mainViewDelegate: (any MainViewDelegateProtocol)?
     
     private var monsterSprite: SKSpriteNode?
@@ -114,12 +116,12 @@ class TestScene: SKScene, RootScene {
             SKAction.group([SKAction.animate(with: cmbTextures, timePerFrame: 0.1,resize: true, restore: false),
                             SKAction.animate(withNormalTextures: normaltxt,
                                              timePerFrame: 0.1,resize: true,restore: false)])))
-        for i in 0..<bank.hudTextures.count{
-            let node = SKSpriteNode(texture: bank.hudTextures[i])
-            node.position = CGPoint(x: size.width / 2 - 128 + 64 * CGFloat(i),
-                                    y: size.height / 2 - 160)
-            addChild(node)
-        }
+//        for i in 0..<bank.hudTextures.count{
+//            let node = SKSpriteNode(texture: bank.hudTextures[i])
+//            node.position = CGPoint(x: size.width / 2 - 128 + 64 * CGFloat(i),
+//                                    y: size.height / 2 - 160)
+//            addChild(node)
+//        }
 
     }
     
@@ -191,6 +193,14 @@ extension TestScene {
     }
     
     func handleMouseUp(with event: NSEvent) {
+        
+    }
+    
+    func handleRightMouseDown(with event: NSEvent) {
+        
+    }
+    
+    func handleRightMouseUp(with event: NSEvent) {
         
     }
     

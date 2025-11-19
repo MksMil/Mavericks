@@ -35,18 +35,18 @@ class BlockModifyMenuNode: BaseRaidNode {
     func setupMenu(rad: CGFloat = .zero){
         let upgradeButton = HudButton(type: .hud,
                                       inputDelegate: self,
-                                      texture: bank.upgradeSellTextures[0])
+                                      texture: bank.hudAtlas.textureNamed("upgradeMenuButton"))
         upgradeButton.name = NodeNames.blockUpgrade.rawValue
         
         let sellButton = HudButton(type: .hud,
                                    inputDelegate: self,
-                                   texture: bank.upgradeSellTextures[1])
+                                   texture: bank.hudAtlas.textureNamed("sellMenuButton"))
         sellButton.name = NodeNames.blockSell.rawValue
         
         //temp cancel texture
         let cancelButton = HudButton(type: .hud,
                                      inputDelegate: self,
-                                     texture: bank.hudTextures[0])
+                                     texture: bank.hudAtlas.textureNamed("cancelHUDButton"))
         cancelButton.name = NodeNames.cancel.rawValue
         
         let menuNodes = [cancelButton,upgradeButton,sellButton]
@@ -78,11 +78,11 @@ extension BlockModifyMenuNode: BlockModifyMenuInputDelegateProtocol{
     
     
     func handleNode(_ tappedNode: BaseRaidNode,
-                    isTapped: Bool,
+                    isTapEnded: Bool,
                     state: SceneState,
                     sceneLocation: CGPoint) {
         print("in block modify handler")
-        if !isTapped{
+        if !isTapEnded{
             if let name = tappedNode.name{
                 if NodeNames.roadBuildingsModify.contains(name){
                         switch name {

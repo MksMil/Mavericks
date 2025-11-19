@@ -19,7 +19,14 @@ class FieldBuildingMenuNode: BaseRaidNode {
         self.iconSize = iconSize
         self.bank = bank
         self.towers = towers
-        let towerTextures = bank.towerMenuTextures
+        let towerTextures = [
+            bank.interactiveAtlas.textureNamed("arrowTower"),
+            bank.interactiveAtlas.textureNamed("poisonTower"),
+            bank.interactiveAtlas.textureNamed("fireTower"),
+            bank.interactiveAtlas.textureNamed("frostTower"),
+            bank.interactiveAtlas.textureNamed("electroTower"),
+            bank.interactiveAtlas.textureNamed("stunTower")
+        ]
         
         self.arrowNode = HudButton(type: .hud,
                                    inputDelegate: nil,
@@ -67,7 +74,7 @@ class FieldBuildingMenuNode: BaseRaidNode {
         //temp cancel texture
         let cancelButton = HudButton(type: .hud,
                                      inputDelegate: nil,
-                                     texture: bank.hudTextures[0])
+                                     texture: bank.hudAtlas.textureNamed("cancellHUDButton"))
         cancelButton.name = NodeNames.cancel.rawValue
         towerNodes.insert(cancelButton, at: 0)
         let startAngle = 3 * CGFloat.pi / 2.0
@@ -108,10 +115,10 @@ extension FieldBuildingMenuNode {
 // MARK: - TowerBuildMenuInputDelegate
 extension FieldBuildingMenuNode: FieldBuildingMenuInputDelegateProtocol{
     func handleNode(_ tappedNode: BaseRaidNode,
-                    isTapped: Bool,
+                    isTapEnded: Bool,
                     state: SceneState,
                     sceneLocation: CGPoint) {
-        if !isTapped{
+        if !isTapEnded{
             if let name = tappedNode.name{
                 if NodeNames.towers.contains(name){
                     if let type = TowerType(rawValue: name){

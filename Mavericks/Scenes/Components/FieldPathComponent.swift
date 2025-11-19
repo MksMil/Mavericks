@@ -8,6 +8,21 @@ import GameplayKit
 
 class FieldPathComponent: GKComponent{
     
+//    private var needsImmediateRepath = false
+//        
+//        func markForImmediateRepath() {
+//            needsImmediateRepath = true
+//        }
+//        
+//        override func update(deltaTime: TimeInterval) {
+//            if needsImmediateRepath || lastUpdate >= repathInterval {
+//                recalculatePath()
+//                needsImmediateRepath = false
+//                lastUpdate = 0
+//            }
+//        }
+    
+    
     var cellSize: CGFloat
     
     var startPoint: GridCell
@@ -33,6 +48,7 @@ class FieldPathComponent: GKComponent{
     }
     
     override func update(deltaTime seconds: TimeInterval) {
+        print("path updated")
         let newPath = makePathFromGridGraph()
         actualPath = newPath
         updateMonstersPaths()
@@ -82,7 +98,7 @@ extension FieldPathComponent{
     
     //new actual path
     func makePathFromGridGraph()->[GKGridGraphNode]{
-        let field  = spawn.field 
+        let field  = spawn.field
         if let startNode = field.pathGraph.node(atGridPosition: startPoint.gridPosition),
            let endNode = field.pathGraph.node(atGridPosition: endPoint.gridPosition){
             //find path
@@ -91,10 +107,12 @@ extension FieldPathComponent{
                 return []
             }
             //return fields gridCells pointers
+            print("path count: \(path.count)")
             return path
         } else {
             return []
         }
+        
     }
 }
 
