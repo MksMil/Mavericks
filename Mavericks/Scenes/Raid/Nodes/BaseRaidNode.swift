@@ -34,14 +34,17 @@ enum InputDelegateType{
 
 class BaseRaidNode: SKSpriteNode {
     var type: BaseRaidNodeType
+    var infoSource: Informable?
     var inputDelegate: NodeTappedHandlable? //handle this node touches
     init(type: BaseRaidNodeType,
          inputDelegate: NodeTappedHandlable?,
+         infoSource: Informable? = nil,
          texture: SKTexture? = nil,
          color: NSColor = .clear,
          size: CGSize = .zero) {
         self.type = type
         self.inputDelegate = inputDelegate
+        self.infoSource = infoSource
         var newsize = size
         if let texture, size == .zero {
             newsize = texture.size()

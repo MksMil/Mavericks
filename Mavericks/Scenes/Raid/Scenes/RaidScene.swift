@@ -64,6 +64,8 @@ class RaidScene: SKScene, RootScene {
     
     private let cellSize: CGFloat = 64.0
     
+    
+    private var baseHealth: Int = 100
     private var resourceCount: Int = 0
     private let resourceLimit: Int = 100
     
@@ -267,6 +269,16 @@ extension RaidScene: MainHudOutputDelegateProtocol {
 
 // MARK: - FieldOutput
 extension RaidScene: FieldOutputDelegateProtocol{
+    func baseTakeDamage(damage: Int) {
+        print("base take damage")
+        baseHealth -= damage
+        mainHudInputDelegate?.baseHealthChanged(health: baseHealth)
+        if baseHealth <= 0{
+            //finish
+            fieldInputDelegate?.stop()
+        }
+    }
+    
     func handleNewState(state: SceneState){
         self.state = state
         print(self.state)
