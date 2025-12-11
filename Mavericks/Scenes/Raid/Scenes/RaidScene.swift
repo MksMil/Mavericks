@@ -172,6 +172,9 @@ extension RaidScene {
                                  isTapEnded: isTapEnded,
                                  state: state,
                                  sceneLocation: location)
+            if let infoSource = tappedNode.infoSource {
+                mainHudInputDelegate?.showInfo(text: "infoSource")
+            }
             mainHudInputDelegate?.showInfo(text: tappedNode.name ?? "no info")
         }
     }

@@ -21,7 +21,7 @@ final class MainRouter: ObservableObject, MainViewDelegateProtocol{
                 return SceneFactory.makeScene(levelInfo: "level1",
                                               initialSize: CGSize(width: 800,
                                                                   height: 800),
-                                              cellSize: 18)
+                                              cellSize: 64)
 //                return RaidScene(size: .zero,
 //                                 bank: TextureBank(levelInfo: "", cellSize: 64))
             case .testScene:

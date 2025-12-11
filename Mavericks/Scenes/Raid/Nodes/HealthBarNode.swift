@@ -1,17 +1,10 @@
-//
-//  HealthBarNode.swift
-//  Mavericks
-//
-//  Created by Миляев Максим on 27.11.2025.
-//
-
 import SpriteKit
 
 class HealthBarNode: SKNode{
     let source: Damageable
     let size: CGSize
     
-    let frameBar: SKShapeNode
+    let frameBar: SKSpriteNode
     let bar: SKSpriteNode
     
     var isChanging: Bool = false
@@ -19,12 +12,13 @@ class HealthBarNode: SKNode{
     init(source: Damageable,size: CGSize) {
         self.source = source
         self.size = size
-        self.frameBar = SKShapeNode(rectOf: size)
-        frameBar.strokeColor = .white
-        frameBar.lineWidth = (size.height / 8).rounded()
-        self.bar = SKSpriteNode(color: .red,
-                               size: size)
+        let atlas = SKTextureAtlas(named: "interactive")
+        let barTexture = atlas.textureNamed("healthBar")
+        let frameTexture = atlas.textureNamed("healthBarRect")
+        self.frameBar = SKSpriteNode(texture: frameTexture)
+        self.bar = SKSpriteNode(texture: barTexture)
         super.init()
+        
         addChild(bar)
         bar.zPosition = 1
         bar.anchorPoint = CGPoint(x: 0, y: 0.5)

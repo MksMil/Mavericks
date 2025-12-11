@@ -85,7 +85,7 @@ class BulletModel: GKEntity {
         let animation = SKAction.move(to: getEndPosition(),
                                       duration: speed)
         let completion = SKAction.run {
-            target.applyDamage(tower.attack)
+            target.applyDamage(from: tower)
             self.node.removeAllActions()
             self.node.isHidden = true
             self.field.finishShootByBullet(self)

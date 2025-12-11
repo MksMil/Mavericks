@@ -12,6 +12,7 @@ enum SceneFactory {
         
         let field = Field(scene: scene,
                           bank: bank,
+                          cellSize: cellSize,
                           map: FieldModel.TestLevel)
         scene.fieldInputDelegate = field
         return scene

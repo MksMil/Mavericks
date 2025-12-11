@@ -19,7 +19,7 @@ class Field: SKNode{
 
     
     //path finding
-    var pathGraph: GKGridGraph<GKGridGraphNode> = GKGridGraph()
+    var pathGraph: GKGridGraph<CustomGridNode> = GKGridGraph<CustomGridNode>()
     let pathComponentSystem: GKComponentSystem<FieldPathComponent> = .init(componentClass: FieldPathComponent.self)
     
     //
@@ -212,7 +212,6 @@ extension Field: FieldInputDelegateProtocol{
                             return
                         case .base:
                             print("base tapped")
-                            
                         case .spawn:
                             print("spawn tapped")
                         case .resorses:
@@ -269,20 +268,23 @@ extension Field {
         pathGraph = GKGridGraph(fromGridStartingAt: vector_int2(0, 0),
                                 width: Int32(map.width),
                                 height: Int32(map.height),
-                                diagonalsAllowed: false)
-
-        
+                                diagonalsAllowed: false,
+                                nodeClass: CustomGridNode.self)
+//        if let baseCount = pathGraph.node(atGridPosition: vector_int2(x: 2, y: 2))?.connectedNodes.count{
+//            print("base count = \(baseCount)")
+//        }
+        let cells = map.flippedVertically
         // all cells creation
         grid =
+        (0..<map.height).map { y in
             (0..<map.width).map { x in
-                (0..<map.height).map { y in
                     
-                    let cell = GridCell(position: vector_int2(Int32(y), Int32(x)),
-                                        mapCell: map.flippedVertically[x][y],
+                    let cell = GridCell(position: vector_int2(Int32(x), Int32(y)),
+                                        mapCell: cells[y][x],
                                         cellSize: cellSize,
                                         node: nil)
-                    let content = map.flippedVertically[x][y].mapCellContent
-                    let mapType = map.flippedVertically[x][y].mapCellType
+                    let content = cells[y][x].mapCellContent
+                    let mapType = cells[y][x].mapCellType
                     var type: BaseRaidNodeType = .empty
                     var texture: SKTexture = SKTexture()
                     switch content {
@@ -328,7 +330,8 @@ extension Field {
                     let sprite = BaseRaidNode(type: mapType.baseNodeType(),
                                               inputDelegate: self,
                                               infoSource: self,
-                                              texture: texture)
+                                              texture: texture,
+                                              size: CGSize(width: cellSize, height: cellSize))
                     sprite.position = cell.scenePosition
                     sprite.name = "\(cell.fieldMapCellType)_\(x)_\(y)"
                     mapNode.addChild(sprite)
@@ -338,6 +341,7 @@ extension Field {
                     if type == .base{
                         self.base = cell
                     }
+                cell.node = sprite
                     return cell
             }
         }
@@ -358,22 +362,48 @@ extension Field {
 }
 // MARK: - PathGraph
 extension Field {
+   
     private func updatePathGraph() {
-            for x in 0..<gridWidth  {
-                for y in 0..<gridHeight {
-                    
-                    let node = pathGraph.node(atGridPosition: vector_int2(Int32(y), Int32(x)))
-                // Разрешаем путь к базе и дороге
-                let cell = grid[x][y]
-                if cell.fieldMapCellType != .road /*&& cell.content != .base && cell.content != .spawn */{
-                    node?.removeConnections(to: node?.connectedNodes ?? [], bidirectional: true)
+        for y in 0..<gridHeight {
+            for x in 0..<gridWidth{
+                if let node = pathGraph.node(atGridPosition: vector_int2(Int32(x), Int32(y))){
+                    // Разрешаем путь к базе и дороге
+                    let cell = grid[y][x]
+                    if cell.fieldMapCellType != .road /*&& cell.content != .base && cell.content != .spawn */{
+                        node.removeConnections(to: node.connectedNodes, bidirectional: true)
+                    }
+                } else {
+                    print("unexpected error")
                 }
             }
         }
-        //spawn components update
+        
+        for y in 0..<gridHeight {
+            for x in 0..<gridWidth{
+                
+                if let node = pathGraph.node(atGridPosition: vector_int2(Int32(x), Int32(y))){
+                    // Разрешаем путь к базе и дороге
+                    let cell = grid[y][x]
+                    if cell.fieldMapCellType == .road {
+                        node.isEdge = node.connectedNodes.count < 4 ? true: false
+                        //if diagonal has !road - isEdge true
+                        if x > 1, y > 1, node.connectedNodes.count > 3{
+                            [grid[y - 1][x - 1],
+                             grid[y - 1][x + 1],
+                             grid[y + 1][x - 1],
+                             grid[y + 1][x + 1]
+                            ].forEach { nei in
+                                if nei.fieldMapCellType != .road {
+                                    node.isEdge = true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         updatePaths()
     }
-
 }
 
 // MARK: - SpawnPoint
@@ -584,9 +614,9 @@ extension Field{
         cell.block = block
         
         //change grid, nad node connection
-        if let node = pathGraph.node(atGridPosition: cell.gridPosition){
+        if let node = pathGraph.node(atGridPosition: cell.gridPosition), let neib = node.connectedNodes as? [CustomGridNode]{
             if cell.fieldMapCellType == .road && cell.content == .block{
-                cell.neighbors = node.connectedNodes //for fast connection updates if block removed
+                cell.neighbors = neib//node.connectedNodes  //for fast connection updates if block removed
                 node.removeConnections(to: node.connectedNodes,
                                        bidirectional: true)
             }
@@ -678,7 +708,7 @@ extension Field {
 
     //CGPoint -> vector_int2
     private func convertToGridPosition(cgPoint: CGPoint,
-                                       pathGraph: GKGridGraph<GKGridGraphNode>) -> vector_int2 {
+                                       pathGraph: GKGridGraph<CustomGridNode>) -> vector_int2 {
         let x = Int32(floor(cgPoint.x / cellSize))
         let y = Int32(floor(cgPoint.y / cellSize))
         print("point: \(cgPoint), x: \(x), y: \(y)")

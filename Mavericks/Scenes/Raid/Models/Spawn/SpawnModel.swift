@@ -81,7 +81,6 @@ class SpawnModel: GKEntity {
     func removeMonster(_ monster: MonsterModel){
         pool.recycle(monster)
         monsters.remove(monster)
-        
     }
 
     

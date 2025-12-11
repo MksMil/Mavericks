@@ -1,15 +1,22 @@
-//
-//  ActionNames.swift
-//  Mavericks
-//
-//  Created by Миляев Максим on 14.10.2025.
-//
-
 import Foundation
 
 enum ActionNames: String{
+    //monster move actions
     case monsterMove
     case monsterMoveCompletion
+    
     case cellsUpdate
+    
     case monsterVisual
+    
+    //monsters state actions
+    case monsterPoisoned
+    case monsterShocked
+    case monsterFreezed
+    case monsterStunned
+    case monsterIgnited
+    case monsterBleding
+    case monsterArmorReduced
+    
+    
 }

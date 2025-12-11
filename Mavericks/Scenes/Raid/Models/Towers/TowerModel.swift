@@ -169,6 +169,11 @@ extension TowerModel {
 
 }
 
+// MARK: - DamageDealer
+extension TowerModel: DamageDealer{
+    
+}
+
 // MARK: - Informable
 extension TowerModel: Informable {
     

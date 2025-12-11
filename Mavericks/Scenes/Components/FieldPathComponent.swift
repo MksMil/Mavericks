@@ -73,22 +73,22 @@ extension FieldPathComponent{
                 print("No valid path for monster from spawn \(startPoint) ")
                 return []
             }
-            var newPath = path
+//            var newPath = path
             //check nearest
-            if (SceneHelper.distanceToScenePoint(
-                SceneHelper.gridPositionToScene(
-                    position: path[0].gridPosition),
-                from: start) + SceneHelper.distanceToScenePoint(
-                    SceneHelper.gridPositionToScene(
-                        position: path[1].gridPosition),
-                    from: SceneHelper.gridPositionToScene(
-                        position: path[0].gridPosition))) > SceneHelper.distanceToScenePoint(
-                            SceneHelper.gridPositionToScene(
-                                position: path[1].gridPosition),
-                            from: start) {
-                newPath.remove(at: 0)
-                return newPath
-            }
+//            if (SceneHelper.distanceToScenePoint(
+//                SceneHelper.gridPositionToScene(
+//                    position: path[0].gridPosition),
+//                from: start) + SceneHelper.distanceToScenePoint(
+//                    SceneHelper.gridPositionToScene(
+//                        position: path[1].gridPosition),
+//                    from: SceneHelper.gridPositionToScene(
+//                        position: path[0].gridPosition))) > SceneHelper.distanceToScenePoint(
+//                            SceneHelper.gridPositionToScene(
+//                                position: path[1].gridPosition),
+//                            from: start) {
+//                newPath.remove(at: 0)
+//                return newPath
+//            }
             //return fields gridCells pointers
             return path
         } else {
@@ -99,16 +99,19 @@ extension FieldPathComponent{
     //new actual path
     func makePathFromGridGraph()->[GKGridGraphNode]{
         let field  = spawn.field
-        if let startNode = field.pathGraph.node(atGridPosition: startPoint.gridPosition),
-           let endNode = field.pathGraph.node(atGridPosition: endPoint.gridPosition){
+        let pathGraph = field.pathGraph
+        if let startNode = pathGraph.node(atGridPosition: startPoint.gridPosition),
+           let endNode = pathGraph.node(atGridPosition: endPoint.gridPosition){
+            
             //find path
-            guard let path = field.pathGraph.findPath(from: startNode, to: endNode) as? [GKGridGraphNode], path.count >= 2 else {
+//            let path = field.pathGraph.findPath(from: startNode, to: endNode) as [GKGridGraphNode]
+            guard let path = pathGraph.findPath(from: startNode, to: endNode) as? [GKGridGraphNode], path.count >= 2 else {
                 print("No valid path for monster from spawn \(startPoint) ")
                 return []
             }
             //return fields gridCells pointers
             print("path count: \(path.count)")
-            return path
+            return path//path.map{CustomGridNode(gridPosition: $0.gridPosition)}
         } else {
             return []
         }
@@ -132,16 +135,6 @@ extension FieldPathComponent {
         let y = Int32(floor(cgPoint.y / cellSize))
         
         return vector_int2(x: x, y: y)
-//        let maxX = Int32(pathGraph.gridWidth - 1)
-//        let maxY = Int32(pathGraph.gridHeight - 1)
-//        let clampedX = max(0, min(x, maxX))
-//        let clampedY = max(0, min(y, maxY))
-//        
-//        if pathGraph.node(atGridPosition: vector_int2(clampedX, clampedY)) != nil {
-//            return vector_int2(clampedX, clampedY)
-//        } else {
-//            print("Warning: No valid node at position (\(clampedX), \(clampedY))")
-//            return vector_int2(clampedX, clampedY)
-//        }
+
     }
 }

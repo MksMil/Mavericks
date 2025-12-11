@@ -73,6 +73,38 @@ struct FieldModel {
     var flippedHorizontally: [[MapCell]]{
         cells.map{$0.reversed()}
     }
+    var flippedDiagonally: [[MapCell]]{
+        cells.reversed().map{$0.reversed()}
+    }
+    
+    
+    static let TestLevel1: FieldModel = {
+        let cells: [[(Int,Int)]] = [
+
+[(3,0),(3,0),(3,0),(3,0),(3,0),  (3,0),(3,0),(3,0),(3,0),(3,0)],
+[(3,0),(1,0),(1,0),(1,0),(1,0),  (1,0),(1,0),(1,0),(1,0),(3,0)],
+[(3,0),(1,0),(1,0),(1,0),(1,0),  (1,0),(1,0),(2,2),(1,0),(3,0)],
+[(3,0),(2,0),(2,0),(2,0),(2,0),  (2,0),(2,0),(2,0),(2,0),(3,0)],
+[(3,0),(2,0),(2,0),(2,0),(2,0),  (2,0),(2,0),(2,0),(2,0),(3,0)],
+
+[(3,0),(2,0),(2,0),(2,0),(2,0),  (2,0),(2,0),(2,0),(2,0),(3,0)],
+[(3,0),(2,0),(2,0),(2,0),(2,0),  (2,0),(2,0),(2,0),(2,0),(3,0)],
+[(3,0),(1,0),(2,1),(1,0),(1,0),  (1,0),(1,0),(1,0),(1,0),(3,0)],
+[(3,0),(1,0),(1,0),(1,0),(1,0),  (1,0),(1,0),(1,0),(1,0),(3,0)],
+[(3,0),(3,0),(3,0),(3,0),(3,0),  (3,0),(3,0),(3,0),(3,0),(3,0)]
+    ]
+        
+       let fieldCells = cells.map { row in
+           row.map { MapCell(mapCellType: MapCellType(rawValue: $0.0) ?? MapCellType.rock,
+                              mapCellContent: MapCellContent(rawValue: $0.1) ?? MapCellContent.empty)
+            }
+        }
+        return FieldModel(cells: fieldCells)
+    }()
+    
+}
+
+extension FieldModel {
     static let TestLevel: FieldModel = {
         let cells: [[(Int,Int)]] = [
 [(0,0),(0,0),(0,0),       (0,0),(0,0),(0,0),(0,0),(0,0), (0,0),(0,0),(0,0),(0,0),(0,0), (0,0),(0,0),(0,0),(0,0),(0,0), (0,0),(0,0),(0,0),(0,0),(0,0), (0,0),(0,0),(0,0),(0,0),(0,0),      (0,0),(0,0),(0,0)],
@@ -117,11 +149,12 @@ struct FieldModel {
         
         
         
-       let fieldCells = cells.map { cell in
-           cell.map { MapCell(mapCellType: MapCellType(rawValue: $0.0) ?? MapCellType.rock,
+       let fieldCells = cells.map { row in
+           row.map { MapCell(mapCellType: MapCellType(rawValue: $0.0) ?? MapCellType.rock,
                               mapCellContent: MapCellContent(rawValue: $0.1) ?? MapCellContent.empty)
             }
         }
         return FieldModel(cells: fieldCells)
     }()
+
 }

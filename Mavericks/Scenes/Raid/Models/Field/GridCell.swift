@@ -21,29 +21,21 @@ class GridCell: GKEntity {
     var content: MapCellContent
     var cellSize: CGFloat
     var node: BaseRaidNode?
-    var neighbors: [GKGraphNode] = []
+    var neighbors: [CustomGridNode] = []
     
-    var monsters: [MonsterModel] = []
+    var monsters: Set<MonsterModel> = Set()
     var spawn: SpawnModel?
     var block: BlockModel?
     var tower: TowerModel?
     var trap: TrapModel?
-//    var state: GridCellState = .empty
-    
-    // ✅ СВЯЗЬ С MONSTERMODEL: индекс в пуле (O(1) удаление)
-    private var monsterCount: Int = 0  // Количество монстров (быстрее append/removeAll)
-    private var activeMonsters: Set<ObjectIdentifier> = []  // O(1) проверка/удаление
+
+    private var monstersQueue: [MonsterModel] = []
     
     var hasMonsters: Bool {
-        return monsterCount > 0
+        return monsters.count > 0
     }
     
-    var state: GridCellState = .empty {
-        didSet {
-            // ✅ Только визуал (если нужно)
-            // node?.color = state == .empty ? .gray : .orange
-        }
-    }
+    var state: GridCellState = .empty 
     
     init(position: vector_int2,
          mapCell: MapCell,
@@ -66,63 +58,41 @@ class GridCell: GKEntity {
 
 // MARK: - monster towers
 extension GridCell {
-//    func updateWithMonster(_ monster: MonsterModel,
-//                           enterIn: Bool) {
-//            let id = ObjectIdentifier(monster)
-//            
-//            if enterIn {
-//                // ✅ O(1) добавление
-//                if !activeMonsters.contains(id) {
-//                    activeMonsters.insert(id)
-//                    monsterCount += 1
-//                    state = .enemiesIn
-//                }
-//            } else {
-//                // ✅ O(1) удаление
-//                if activeMonsters.remove(id) != nil {
-//                    monsterCount -= 1
-//                    if monsterCount == 0 {
-//                        state = .empty
-//                    }
-//                }
-//            }
-//        }
-//        
-//        // ✅ Быстрый доступ для башен (O(1))
-//        func getMonsters() -> [MonsterModel] {
-//            // Возвращаем только если нужно (редко)
-//            return monsters.filter { activeMonsters.contains(ObjectIdentifier($0)) }
-//        }
-//        
-//        func clearMonsters() {
-//            activeMonsters.removeAll()
-//            monsterCount = 0
-//            state = .empty
-//        }
+
     func clearMonsters(){
         monsters.removeAll()
+    }
+    
+    func containMonster(_ monster: MonsterModel) -> Bool {
+        return monsters.contains(monster)
+    }
+    
+    func queueMonster(_ monster: MonsterModel){
+        monstersQueue.append(monster)
+    }
+    
+    func unqueueMonster()->MonsterModel?{
+        monstersQueue.popLast()
     }
     
     func updateWithMonster(_ monster: MonsterModel,
                            enterIn: Bool){
         if enterIn {
-            monsters.append(monster)
-            state = .enemiesIn
-        } else {
-            if !monsters.isEmpty, monsters.contains(where: {$0 == monster}){
-                monsters.removeAll { existing in
-                    existing == monster
-                }
+            if monsters.isEmpty{
+                monsters.insert(monster)
+                state = .enemiesIn
+            } else {
+                print("unexpected error in enter the cell: monsters set !isEmpty")
             }
+        } else {
+            monsters.remove(monster)
             if monsters.isEmpty {
                 state = .empty
+                if let nextMonster = unqueueMonster(){
+                    nextMonster.stateMachine?.enter(MonsterMoveState.self)
+                }
             }
         }
-//        if state == .empty {
-//            node?.color = .gray
-//        } else {
-//            node?.color = .orange
-//        }
     }
 }
 

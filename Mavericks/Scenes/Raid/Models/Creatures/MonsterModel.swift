@@ -22,13 +22,7 @@ import GameplayKit
 //attacked
 //}
 
-protocol Damageable {
-    var currentHealth: Int { get }
-    var maxHealth: Int { get }
-    
-    func applyDamage(_ damage: DamageModel)
-//    func heal(_ amount: Int)
-}
+
 
 // TODO: rework movement
 class MonsterModel: GKEntity {
@@ -71,6 +65,8 @@ class MonsterModel: GKEntity {
     var isFreezed: Bool = false
     var isIgnite: Bool = false
     var isStunned: Bool = false
+    var isBleeding: Bool = false
+    var isArmorReduced: Bool = false
 
     var healthBar: HealthBarNode?
     // MARK: init
@@ -142,6 +138,7 @@ class MonsterModel: GKEntity {
     }
     //new path update
     func updateWith(_ pathFor: @escaping (CGPoint)->[GKGridGraphNode] ){
+        print("pth updated")
         let position = node.position
         gridPath = pathFor(position)
         //if monster was blocked
@@ -176,6 +173,8 @@ class MonsterModel: GKEntity {
         isFreezed  = false
         isIgnite   = false
         isStunned  = false
+        isBleeding = false
+        isArmorReduced = false
         
         node.position = spawn.spawn.scenePosition
         
@@ -199,9 +198,9 @@ class MonsterModel: GKEntity {
 // MARK: - Damageable
 extension MonsterModel: Damageable{
     
-    func applyDamage(_ damage: DamageModel){
+    func applyDamage( from damageDealer: DamageDealer){
         guard currentHealth > 0 else { return }
-        let dmg = self.baseArmor.reducedDamage(damage, withEquippedArmor: equippedArmor).full
+        let dmg = self.baseArmor.reducedDamage(damageDealer.attack, withEquippedArmor: equippedArmor).full
         currentHealth -= Int(dmg)
         if currentHealth <= 0 {
             if let oldPosition = lastPathPosition ,
@@ -212,12 +211,29 @@ extension MonsterModel: Damageable{
                let old = spawn?.field.cellInGridPosition(oldPosition){
                 old.updateWithMonster(self, enterIn: false)
             }
-            
-//            print("monster: \(id) die")
             die()
         } else {
             healthBar?.changeHealth()
+            processEffectFrom(damageDealer: damageDealer)
 //            print("monster receive \(Int(dmg)) damage")
+        }
+    }
+    
+    func processEffectFrom(damageDealer: DamageDealer){
+        let type = damageDealer.type
+        switch type {
+        case .arrow:
+            isArmorReduced = true
+        case .poison:
+            isPoisoned = true
+        case .frost:
+            isFreezed = true
+        case .electro:
+            isShocked = true
+        case .fire:
+            isIgnite = true
+        case .stun:
+            isStunned = true
         }
     }
 }
